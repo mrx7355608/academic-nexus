@@ -1,12 +1,13 @@
 import "dotenv/config";
-import app from "./app.js";
 import { connectDB } from "./utils/db.js";
+import createExpressApp from "./app.js";
 
 const port = process.env.PORT || 8000;
 
 async function start() {
     await connectDB();
-    app.listen(port, () => {
+
+    createExpressApp().listen(port, () => {
         console.log("Server started on port:", port);
     });
 }

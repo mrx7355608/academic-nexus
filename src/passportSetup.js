@@ -1,4 +1,4 @@
-import StudentModel from "./features/students/students.model";
+import StudentModel from "./features/students/students.model.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 
@@ -8,7 +8,7 @@ export default function passportSetup() {
             {
                 clientID: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                callbackURL: "/api/v1/auth/google/callback",
+                callbackURL: "/api/auth/google/callback",
             },
             async function (_accessToken, _refreshToken, profile, done) {
                 // Check if user has previously logged in with google
