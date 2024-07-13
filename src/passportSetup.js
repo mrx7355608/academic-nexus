@@ -1,6 +1,7 @@
 import StudentModel from "./features/students/students.model.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
+import ApiError from "./utils/ApiError.js";
 
 export default function passportSetup() {
     passport.use(
@@ -17,6 +18,16 @@ export default function passportSetup() {
                 });
                 if (student) {
                     return done(null, student);
+                }
+
+                // Validate domain of email to allow only university students
+                if (!profile.emails[0].value.endsWith("@iqra.edu.pk")) {
+                    return done(
+                        new ApiError(
+                            "Please login with your university email",
+                            403,
+                        ),
+                    );
                 }
 
                 // Create and save new user in database

@@ -7,12 +7,12 @@ import session from "express-session";
 import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import passportSetup from "./passportSetup.js";
+import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
+import passport from "passport";
 
 // ROUTERS
 import authRouter from "./features/auth/auth.routes.js";
-
-import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
-import passport from "passport";
+import studentRouter from "./features/students/students.routes.js";
 
 export default function createExpressApp() {
     const app = express();
@@ -51,6 +51,7 @@ export default function createExpressApp() {
 
     // ROUTES
     app.use("/api/auth", authRouter);
+    app.use("/api/students", studentRouter);
 
     // ERROR HANDLERS
     app.use(catch404);
