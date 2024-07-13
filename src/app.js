@@ -13,6 +13,7 @@ import passport from "passport";
 // ROUTERS
 import authRouter from "./features/auth/auth.routes.js";
 import studentRouter from "./features/students/students.routes.js";
+import assessmentRouter from "./features/assessments/assessments.routes.js";
 
 export default function createExpressApp() {
     const app = express();
@@ -52,6 +53,7 @@ export default function createExpressApp() {
     // ROUTES
     app.use("/api/auth", authRouter);
     app.use("/api/students", studentRouter);
+    app.use("/api/assessments", assessmentRouter);
 
     // ERROR HANDLERS
     app.use(catch404);
