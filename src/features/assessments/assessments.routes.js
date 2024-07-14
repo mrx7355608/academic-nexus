@@ -18,6 +18,20 @@ router.get("/", async (req, res, next) => {
     }
 });
 
+router.get("/:id", async (req, res, next) => {
+    try {
+        const assessment = await AssessmentModel.findById(
+            req.params.id,
+        ).populate("author", "fullname profilePicture");
+        return res.status(200).json({
+            ok: true,
+            data: assessment,
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
 router.post("/", isAuth, async (req, res, next) => {
     try {
         const data = req.body;
