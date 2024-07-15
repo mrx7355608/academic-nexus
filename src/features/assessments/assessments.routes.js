@@ -6,14 +6,30 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
     try {
-        const assessments = await AssessmentModel.find({ isPublic: true })
-            .sort("-createdAt")
-            .populate("author", "fullname");
+        const stages = [];
+        stages.push({ $match: { isPublic: true } });
+
+        if (req.query.subjects) {
+            const subjects = req.query.subjects.split(",");
+            stages.push({ $match: { subject: { $in: subjects } } });
+        }
+
+        stages.push({ $sort: { createdAt: -1 } });
+        stages.push({
+            $addFields: {
+                averageVotes: {
+                    $subtract: [{ $size: "$upvotes" }, { $size: "$downvotes" }],
+                },
+            },
+        });
+        stages.push({ $sort: { averageVotes: -1 } });
+        const assessments = await AssessmentModel.aggregate(stages);
         return res.status(200).json({
             ok: true,
             data: assessments,
         });
     } catch (err) {
+        console.log(err);
         return next(err);
     }
 });
