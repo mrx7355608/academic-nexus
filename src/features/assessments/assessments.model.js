@@ -31,6 +31,24 @@ const assessmentSchema = new mongoose.Schema(
             ref: "Student",
             required: true,
         },
+        upvotes: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Student",
+                },
+            ],
+            default: [],
+        },
+        downvotes: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Student",
+                },
+            ],
+            default: [],
+        },
     },
     { timestamps: true },
 );

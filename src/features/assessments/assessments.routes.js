@@ -48,4 +48,56 @@ router.post("/", isAuth, async (req, res, next) => {
     }
 });
 
+router.post("/:id/upvote", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // TODO: validate id and assessment existence
+
+        const updated = await AssessmentModel.findByIdAndUpdate(
+            id,
+            {
+                $push: { upvotes: req.user._id },
+                $pull: { downvotes: req.user._id },
+            },
+            { new: true },
+        );
+        return res.status(201).json({
+            ok: true,
+            data: {
+                upvotes: updated.upvotes,
+                downvotes: updated.downvotes,
+            },
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
+router.post("/:id/downvote", async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        // TODO: validate id and assessment existence
+
+        const updated = await AssessmentModel.findByIdAndUpdate(
+            id,
+            {
+                $pull: { upvotes: req.user._id },
+                $push: { downvotes: req.user._id },
+            },
+            { new: true },
+        );
+        return res.status(201).json({
+            ok: true,
+            data: {
+                upvotes: updated.upvotes,
+                downvotes: updated.downvotes,
+            },
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
 export default router;
