@@ -6,33 +6,44 @@ const router = Router();
 
 router.get("/", async (req, res, next) => {
     try {
-        const stages = [];
-        stages.push({ $match: { isPublic: true } });
+        const aggregateStages = [];
+        aggregateStages.push({ $match: { isPublic: true } });
 
         // Filtering
         if (req.query.subjects) {
             const subjects = req.query.subjects.split(",");
-            stages.push({ $match: { subject: { $in: subjects } } });
+            aggregateStages.push({ $match: { subject: { $in: subjects } } });
         }
 
         if (req.query.types) {
             const types = req.query.types.split(",");
-            stages.push({ $match: { type: { $in: types } } });
+            aggregateStages.push({ $match: { type: { $in: types } } });
         }
 
         // Sorting
-        stages.push({ $sort: { createdAt: -1 } });
-        stages.push({
-            $addFields: {
-                averageVotes: {
-                    $subtract: [{ $size: "$upvotes" }, { $size: "$downvotes" }],
+        // BY HIGHEST VOTES
+
+        // BY LATEST UPLOAD
+        if (req.query.sort === "oldest") {
+            aggregateStages.push({ $sort: { createdAt: 1 } });
+        } else if (req.query.sort === "highest votes") {
+            aggregateStages.push({
+                $addFields: {
+                    averageVotes: {
+                        $subtract: [
+                            { $size: "$upvotes" },
+                            { $size: "$downvotes" },
+                        ],
+                    },
                 },
-            },
-        });
-        stages.push({ $sort: { averageVotes: -1 } });
+            });
+            aggregateStages.push({ $sort: { averageVotes: -1 } });
+        } else {
+            aggregateStages.push({ $sort: { createdAt: -1 } });
+        }
 
         // Fetch data from database
-        const assessments = await AssessmentModel.aggregate(stages);
+        const assessments = await AssessmentModel.aggregate(aggregateStages);
         return res.status(200).json({
             ok: true,
             data: assessments,
