@@ -9,11 +9,18 @@ router.get("/", async (req, res, next) => {
         const stages = [];
         stages.push({ $match: { isPublic: true } });
 
+        // Filtering
         if (req.query.subjects) {
             const subjects = req.query.subjects.split(",");
             stages.push({ $match: { subject: { $in: subjects } } });
         }
 
+        if (req.query.types) {
+            const types = req.query.types.split(",");
+            stages.push({ $match: { type: { $in: types } } });
+        }
+
+        // Sorting
         stages.push({ $sort: { createdAt: -1 } });
         stages.push({
             $addFields: {
@@ -23,6 +30,8 @@ router.get("/", async (req, res, next) => {
             },
         });
         stages.push({ $sort: { averageVotes: -1 } });
+
+        // Fetch data from database
         const assessments = await AssessmentModel.aggregate(stages);
         return res.status(200).json({
             ok: true,
