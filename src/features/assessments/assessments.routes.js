@@ -20,13 +20,13 @@ router.get("/", async (req, res, next) => {
             aggregateStages.push({ $match: { type: { $in: types } } });
         }
 
-        // Sorting
-        // BY HIGHEST VOTES
-
-        // BY LATEST UPLOAD
+        // Sorting - BY LATEST UPLOAD
         if (req.query.sort === "oldest") {
             aggregateStages.push({ $sort: { createdAt: 1 } });
-        } else if (req.query.sort === "highest votes") {
+        }
+
+        // Sorting - BY HIGHEST VOTES
+        else if (req.query.sort === "highest votes") {
             aggregateStages.push({
                 $addFields: {
                     averageVotes: {
@@ -38,8 +38,19 @@ router.get("/", async (req, res, next) => {
                 },
             });
             aggregateStages.push({ $sort: { averageVotes: -1 } });
-        } else {
+        }
+        // Sorting - DEFAULT
+        else {
             aggregateStages.push({ $sort: { createdAt: -1 } });
+        }
+
+        // Searching
+        if (req.query.s) {
+            aggregateStages.push({
+                $match: {
+                    title: { $regex: new RegExp(req.query.s), $options: "i" },
+                },
+            });
         }
 
         // Fetch data from database
