@@ -6,7 +6,7 @@ export function catch404(_req, res, _next) {
 }
 
 export function globalErrorHandler(err, _req, res, _next) {
-    const message = err.message;
+    const message = err.message || "An un-expected error occurred";
     const status = err.status || 500;
 
     if (process.env.NODE_ENV === "production") {
