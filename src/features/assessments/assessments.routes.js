@@ -70,6 +70,7 @@ router.get("/:id", async (req, res, next) => {
     try {
         const assessment = await AssessmentModel.findById(
             req.params.id,
+            "-fileURL",
         ).populate("author", "fullname profilePicture");
         return res.status(200).json({
             ok: true,
