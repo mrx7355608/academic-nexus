@@ -1,6 +1,7 @@
 import { Router } from "express";
 import AssessmentModel from "./assessments.model.js";
 import isAuth from "../../middlewares/isAuth.js";
+import https from "https";
 
 const router = Router();
 
@@ -141,6 +142,35 @@ router.post("/:id/downvote", async (req, res, next) => {
                 upvotes: updated.upvotes,
                 downvotes: updated.downvotes,
             },
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
+// VIEW ASSESSMENT FILE
+router.get("/view-assessment-file/:id", async (req, res, next) => {
+    try {
+        const contentTypeMap = {
+            pdf: "application/pdf",
+            doc: "application/msword",
+            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            png: "image/png",
+            jpg: "image/jpeg",
+            jpeg: "image/jpeg",
+        };
+        // Get public id from database using the assessment id
+        const assessment = await AssessmentModel.findById(req.params.id);
+
+        // Send resource back to frontend
+        https.get(assessment.fileURL, (stream) => {
+            res.setHeader(
+                "Content-Type",
+                contentTypeMap[assessment.fileExtension],
+            );
+            stream.pipe(res);
+
+            // TODO: handle https errors during stream
         });
     } catch (err) {
         return next(err);
