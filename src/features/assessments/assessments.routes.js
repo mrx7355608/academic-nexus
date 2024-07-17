@@ -54,8 +54,14 @@ router.get("/", async (req, res, next) => {
             });
         }
 
+        // Deselect fileURL field from all the documents
+        aggregateStages.push({
+            $project: { fileURL: 0 },
+        });
+
         // Fetch data from database
         const assessments = await AssessmentModel.aggregate(aggregateStages);
+        await AssessmentModel.populate(assessments, { path: "author" });
         return res.status(200).json({
             ok: true,
             data: assessments,
