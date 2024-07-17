@@ -2,10 +2,6 @@ import mongoose from "mongoose";
 
 const assessmentSchema = new mongoose.Schema(
     {
-        isPublic: {
-            type: Boolean,
-            default: true,
-        },
         title: {
             type: String,
             required: true,
@@ -13,6 +9,10 @@ const assessmentSchema = new mongoose.Schema(
         fileURL: {
             type: String,
             required: true,
+        },
+        isPublic: {
+            type: Boolean,
+            default: true,
         },
         fileExtension: {
             type: String,
