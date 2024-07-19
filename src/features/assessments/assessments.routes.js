@@ -1,8 +1,11 @@
 import { Router } from "express";
-import AssessmentModel from "./assessments.model.js";
-import isAuth from "../../middlewares/isAuth.js";
 import https from "https";
 import bcrypt from "bcryptjs";
+import validator from "validator";
+
+import AssessmentModel from "./assessments.model.js";
+import validateAssessment from "../../middlewares/validateAssessment.js";
+import isAuth from "../../middlewares/isAuth.js";
 import ApiError from "../../utils/ApiError.js";
 
 const router = Router();
@@ -59,29 +62,32 @@ router.get("/", async (req, res, next) => {
 
         // Deselect fileURL field from all the documents
         aggregateStages.push({
-            $project: { fileURL: 0 },
+            $project: { fileURL: 0, password: 0 },
         });
 
         // Fetch data from database
         const assessments = await AssessmentModel.aggregate(aggregateStages);
-        await AssessmentModel.populate(assessments, { path: "author" });
+        await AssessmentModel.populate(assessments, {
+            path: "author",
+            select: "fullname",
+        });
+
         return res.status(200).json({
             ok: true,
             data: assessments,
         });
     } catch (err) {
-        console.log(err);
         return next(err);
     }
 });
 
 // GET SINGLE ASSESSMENT BY ID
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", validateAssessment, async (req, res, next) => {
     try {
-        const assessment = await AssessmentModel.findById(
-            req.params.id,
-            "-fileURL",
-        ).populate("author", "fullname profilePicture");
+        const assessment = await req.assessment.populate(
+            "author",
+            "fullname profilePicture",
+        );
         return res.status(200).json({
             ok: true,
             data: assessment,
@@ -109,11 +115,9 @@ router.post("/", isAuth, async (req, res, next) => {
 });
 
 // UPVOTE ASSESSMENT
-router.post("/:id/upvote", async (req, res, next) => {
+router.post("/:id/upvote", validateAssessment, async (req, res, next) => {
     try {
         const { id } = req.params;
-
-        // TODO: validate id and assessment existence
 
         const updated = await AssessmentModel.findByIdAndUpdate(
             id,
@@ -136,11 +140,9 @@ router.post("/:id/upvote", async (req, res, next) => {
 });
 
 // DOWNVOTE ASSESSMENT
-router.post("/:id/downvote", async (req, res, next) => {
+router.post("/:id/downvote", validateAssessment, async (req, res, next) => {
     try {
         const { id } = req.params;
-
-        // TODO: validate id and assessment existence
 
         const updated = await AssessmentModel.findByIdAndUpdate(
             id,
@@ -173,8 +175,20 @@ router.get("/view-assessment-file/:id", async (req, res, next) => {
             jpg: "image/jpeg",
             jpeg: "image/jpeg",
         };
-        // Get public id from database using the assessment id
-        const assessment = await AssessmentModel.findById(req.params.id);
+
+        // Validate assessment id
+        if (!validator.isMongoId(req.params.id)) {
+            return next(new ApiError("Invalid assessment id", 400));
+        }
+
+        // Check if assessment exists
+        const assessment = await AssessmentModel.findById(
+            req.params.id,
+            "+fileURL",
+        );
+        if (!assessment) {
+            return next(new ApiError("Assessment not found", 404));
+        }
 
         // Send resource back to frontend
         https.get(assessment.fileURL, (stream) => {
@@ -202,13 +216,22 @@ router.post("/download-file/:id", async (req, res, next) => {
             jpg: "image/jpeg",
             jpeg: "image/jpeg",
         };
+
         const { password } = req.body;
 
-        // Get public id from database using the assessment id
+        // Validate assessment id
+        if (!validator.isMongoId(req.params.id)) {
+            return next(new ApiError("Invalid assessment id", 400));
+        }
+
+        // Check if assessment exists
         const assessment = await AssessmentModel.findById(
             req.params.id,
-            "+password",
+            "+password +fileURL",
         );
+        if (!assessment) {
+            return next(new ApiError("Assessment not found", 404));
+        }
 
         // Verify password
         const isValid = await bcrypt.compare(password, assessment.password);
@@ -235,5 +258,39 @@ router.post("/download-file/:id", async (req, res, next) => {
         return next(err);
     }
 });
+
+// EDIT ASSESSMENT
+router.patch("/:id", validateAssessment, async (req, res, next) => {
+    try {
+        const assessment = req.assessment;
+
+        // Check if author matches
+        if (String(assessment.author) !== req.user._id) {
+            return next(new ApiError("You cannot edit this assessment", 403));
+        }
+
+        // TODO: Validate new changes
+
+        // Update assessment
+        const updated = await AssessmentModel.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true },
+        );
+
+        // Hide sensitive fields
+        updated.fileURL = undefined;
+        updated.password = undefined;
+
+        return res.status(200).json({
+            ok: true,
+            data: updated,
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
+// DELETE ASSESSMENT
 
 export default router;

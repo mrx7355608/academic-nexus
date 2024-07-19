@@ -15,6 +15,7 @@ const assessmentSchema = new mongoose.Schema(
         fileURL: {
             type: String,
             required: true,
+            select: 0,
         },
         isPublic: {
             type: Boolean,
@@ -61,7 +62,7 @@ const assessmentSchema = new mongoose.Schema(
 
 // PRE DOCUMENT MIDDLEWARE FOR HASHING PASSWORD
 assessmentSchema.pre("save", async function (next) {
-    if (this.isNew) {
+    if (this.isNew || this.isModified("password")) {
         const hashedPassword = await bcrypt.hash(this.password, 10);
         this.password = hashedPassword;
         return next();
