@@ -19,29 +19,26 @@ const validSubjects = [
 const editValidationSchema = joi.object({
     fileURL: joi
         .string()
-        .custom(function (value) {
-            return validator.isURL(value) ? true : false;
+        .custom(function (value, helpers) {
+            if (validator.isURL(value)) {
+                return value;
+            } else {
+                return helpers.error("string.url");
+            }
         })
         .messages({
             "string.empty": "File URL cannot be empty",
             "string.base": "Invalid file url",
-            "string.custom": "Invalid file url",
+            "string.url": "Invalid file url",
         }),
-
     fileExtension: joi
         .string()
         .valid("pdf", "doc", "docx", "png", "jpeg", "jpg")
         .messages({
-            "string.valid": "'$value' file extension is not allowed",
+            "any.only": "The file extension is not allowed",
             "string.empty": "File extension cannot be empty",
             "string.base": "Invalid file extension",
         }),
-    password: joi.string().min(8).max(20).messages({
-        "string.min": "Password should be 8 characters atleast",
-        "string.max": "Password cannot be longer than 20 characters",
-        "string.empty": "Password cannot be empty",
-        "string.base": "Invalid password",
-    }),
     title: joi.string().min(10).max(200).messages({
         "string.min": "Title should be 10 characters atleast",
         "string.max": "Title cannot be longer than 200 characters",
@@ -55,7 +52,7 @@ const editValidationSchema = joi.object({
         .string()
         .valid(...validSubjects)
         .messages({
-            "string.valid": "'$value' subject is not known",
+            "any.only": "Subject is not known",
             "string.empty": "Assessment must have a subject",
             "string.base": "Invalid assessment subject",
         }),
@@ -63,14 +60,77 @@ const editValidationSchema = joi.object({
         .string()
         .valid("quiz", "proposal", "assignment", "report", "labtask")
         .messages({
-            "string.valid": "$value is an invalid assessment type",
+            "any.only":
+                "Type must be one of quiz, proposal, assignment, report, labtask",
             "string.empty": "Assessment type cannot be empty",
             "string.base": "Assessment type should be a text value",
         }),
 });
 
+const createValidationSchema = joi.object({
+    fileURL: joi
+        .string()
+        .custom(function (value, helpers) {
+            if (validator.isURL(value)) {
+                return value;
+            } else {
+                return helpers.error("string.url");
+            }
+        })
+        .required()
+        .messages({
+            "string.empty": "File URL cannot be empty",
+            "string.base": "Invalid file url",
+            "string.url": "Invalid file url",
+            "any.required": "Please upload a file first",
+        }),
+
+    password: joi.string().min(8).max(20).required().messages({
+        "string.min": "Password should be 8 characters atleast",
+        "string.max": "Password cannot be longer than 20 characters",
+        "string.empty": "Password cannot be empty",
+        "string.base": "Invalid password",
+        "any.required": "Password is required",
+    }),
+    title: joi.string().min(10).max(200).required().messages({
+        "string.min": "Title should be 10 characters atleast",
+        "string.max": "Title cannot be longer than 200 characters",
+        "string.empty": "Titlecannot be empty",
+        "string.base": "Invalid title",
+        "any.required": "Title is required",
+    }),
+    subject: joi
+        .string()
+        .valid(...validSubjects)
+        .required()
+        .messages({
+            "any.only": "Subject is not known",
+            "string.empty": "Assessment must have a subject",
+            "string.base": "Invalid assessment subject",
+            "any.required": "Please select a subject for your assessment",
+        }),
+    type: joi
+        .string()
+        .valid("quiz", "proposal", "assignment", "report", "labtask")
+        .required()
+        .messages({
+            "any.only":
+                "Type must be one of quiz, proposal, assignment, report, labtask",
+            "string.empty": "Assessment type cannot be empty",
+            "string.base": "Assessment type should be a text value",
+            "any.required": "Please select an assessment type",
+        }),
+});
+
 export function editAssessmentValidator(data) {
     const { error } = editValidationSchema.validate(data);
+    if (error) {
+        throw new ApiError(error.message, 400);
+    }
+}
+
+export function createAssessmentValidator(data) {
+    const { error } = createValidationSchema.validate(data);
     if (error) {
         throw new ApiError(error.message, 400);
     }

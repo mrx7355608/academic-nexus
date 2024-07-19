@@ -12,6 +12,10 @@ const assessmentSchema = new mongoose.Schema(
             required: true,
             select: 0,
         },
+        publicId: {
+            type: String,
+            required: true,
+        },
         fileURL: {
             type: String,
             required: true,

@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 let cachedConnection = null;
 
-export async function connectDB() {
+export async function connectDB(url) {
     if (cachedConnection) {
         return;
     }
 
-    cachedConnection = await mongoose.connect(process.env.DB_URL);
+    cachedConnection = await mongoose.connect(url);
     console.log("Connected to database");
 }
