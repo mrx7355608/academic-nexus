@@ -295,14 +295,21 @@ export async function deleteAssessment(req, res, next) {
         const assessment = req.assessment;
 
         // Check if author matches
-        if (String(assessment.author) !== req.user._id) {
-            return next(new ApiError("You cannot edit this assessment", 403));
+        if (String(assessment.author) !== String(req.user._id)) {
+            return next(new ApiError("You cannot delete this assessment", 403));
         }
 
         // Delete assessment
         await AssessmentModel.findByIdAndDelete(req.params.id);
 
         // Also delete file from cloudnary
+        cloudinary.v2.api
+            .delete_resources([assessment.publicId], {
+                type: "upload",
+                resource_type:
+                    assessment.fileExtension === "docx" ? "raw" : "image",
+            })
+            .then(console.log);
 
         return res.status(204).end();
     } catch (err) {

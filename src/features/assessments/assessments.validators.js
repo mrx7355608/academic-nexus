@@ -85,6 +85,15 @@ const createValidationSchema = joi.object({
             "any.required": "Please upload a file first",
         }),
 
+    publicId: joi.string().required().messages({
+        "string.empty": "Public id is missing",
+        "string.base": "Invalid public id",
+        "any.required": "Public id is required",
+    }),
+
+    isPublic: joi.boolean(),
+    fileExtension: joi.string(),
+
     password: joi.string().min(8).max(20).required().messages({
         "string.min": "Password should be 8 characters atleast",
         "string.max": "Password cannot be longer than 20 characters",
