@@ -2,9 +2,12 @@ import { Router } from "express";
 import AssessmentModel from "./assessments.model.js";
 import isAuth from "../../middlewares/isAuth.js";
 import https from "https";
+import bcrypt from "bcryptjs";
+import ApiError from "../../utils/ApiError.js";
 
 const router = Router();
 
+// GET ALL ASSESSMENTS
 router.get("/", async (req, res, next) => {
     try {
         const aggregateStages = [];
@@ -72,6 +75,7 @@ router.get("/", async (req, res, next) => {
     }
 });
 
+// GET SINGLE ASSESSMENT BY ID
 router.get("/:id", async (req, res, next) => {
     try {
         const assessment = await AssessmentModel.findById(
@@ -87,6 +91,7 @@ router.get("/:id", async (req, res, next) => {
     }
 });
 
+// CREATE NEW ASSESSMENT
 router.post("/", isAuth, async (req, res, next) => {
     try {
         const data = req.body;
@@ -103,6 +108,7 @@ router.post("/", isAuth, async (req, res, next) => {
     }
 });
 
+// UPVOTE ASSESSMENT
 router.post("/:id/upvote", async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -129,6 +135,7 @@ router.post("/:id/upvote", async (req, res, next) => {
     }
 });
 
+// DOWNVOTE ASSESSMENT
 router.post("/:id/downvote", async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -175,6 +182,51 @@ router.get("/view-assessment-file/:id", async (req, res, next) => {
                 "Content-Type",
                 contentTypeMap[assessment.fileExtension],
             );
+            stream.pipe(res);
+
+            // TODO: handle https errors during stream
+        });
+    } catch (err) {
+        return next(err);
+    }
+});
+
+// DOWNLOAD ASSESSMENT FILE
+router.post("/download-file/:id", async (req, res, next) => {
+    try {
+        const contentTypeMap = {
+            pdf: "application/pdf",
+            doc: "application/msword",
+            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            png: "image/png",
+            jpg: "image/jpeg",
+            jpeg: "image/jpeg",
+        };
+        const { password } = req.body;
+
+        // Get public id from database using the assessment id
+        const assessment = await AssessmentModel.findById(
+            req.params.id,
+            "+password",
+        );
+
+        // Verify password
+        const isValid = await bcrypt.compare(password, assessment.password);
+        if (!isValid) {
+            return next(new ApiError("Incorrect password", 403));
+        }
+
+        // Stream file back to frontend
+        https.get(assessment.fileURL, (stream) => {
+            res.setHeader(
+                "Content-Disposition",
+                `attachment; filename="${assessment.title}.pdf"`,
+            );
+            res.setHeader(
+                "Content-Type",
+                contentTypeMap[assessment.fileExtension],
+            );
+
             stream.pipe(res);
 
             // TODO: handle https errors during stream
