@@ -1,7 +1,6 @@
 import StudentModel from "./features/students/students.model.js";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
-import ApiError from "./utils/ApiError.js";
 
 export default function passportSetup() {
     passport.use(
@@ -12,6 +11,14 @@ export default function passportSetup() {
                 callbackURL: "/api/auth/google/callback",
             },
             async function (_accessToken, _refreshToken, profile, done) {
+                // Validate domain of email to allow only university students
+                if (!profile.emails[0].value.endsWith("@iqra.edu.pk")) {
+                    return done(null, false, {
+                        message:
+                            "Invalid email domain. Please use your IU email to login",
+                    });
+                }
+
                 // Check if user has previously logged in with google
                 const student = await StudentModel.findOne({
                     googleId: profile.id,
@@ -20,23 +27,12 @@ export default function passportSetup() {
                     return done(null, student);
                 }
 
-                // Validate domain of email to allow only university students
-                if (!profile.emails[0].value.endsWith("@iqra.edu.pk")) {
-                    return done(
-                        new ApiError(
-                            "Please login with your university email",
-                            403,
-                        ),
-                    );
-                }
-
                 // Create and save new user in database
                 const newUserData = {
                     googleId: profile.id,
                     fullname: profile.name.givenName,
                     email: profile.emails[0].value,
                     profilePicture: profile.photos[0].value,
-                    bio: "",
                     degree: "",
                 };
                 const newStudent = await StudentModel.create(newUserData);

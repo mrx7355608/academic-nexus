@@ -5,6 +5,7 @@ const studentSchema = new mongoose.Schema(
         googleId: {
             type: String,
             required: true,
+            select: 0,
         },
         fullname: {
             type: String,
@@ -17,10 +18,6 @@ const studentSchema = new mongoose.Schema(
         profilePicture: {
             type: String,
             default: "",
-        },
-        bio: {
-            type: String,
-            default: "Not provided",
         },
         degree: {
             type: String,

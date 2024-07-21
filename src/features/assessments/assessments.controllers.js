@@ -186,6 +186,7 @@ export async function viewAssessmentFile(req, res, next) {
             req.params.id,
             "+fileURL",
         );
+
         if (!assessment) {
             return next(new ApiError("Assessment not found", 404));
         }

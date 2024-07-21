@@ -23,7 +23,7 @@ export default function createExpressApp() {
     app.use(morgan("dev"));
     app.use(
         cors({
-            origin: process.env.CLIENT_URL,
+            origin: [process.env.CLIENT_URL, "https://docs.google.com"],
             credentials: true,
         }),
     );
