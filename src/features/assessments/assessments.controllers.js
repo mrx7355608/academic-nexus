@@ -316,3 +316,40 @@ export async function deleteAssessment(req, res, next) {
         return next(err);
     }
 }
+
+export async function getMyAssessments(req, res, next) {
+    try {
+        const { type } = req.params;
+
+        // Validate type
+        const validTypes = [
+            "quiz",
+            "assignment",
+            "report",
+            "proposal",
+            "labtask",
+        ];
+        if (!validTypes.includes(type)) {
+            return next(new ApiError("Invalid type", 400));
+        }
+
+        // Build query
+        let queryFilter = { type };
+
+        // Get subject from query
+        if (req.query.subject) {
+            queryFilter.subject = req.query.subject;
+        }
+
+        const assessments = await AssessmentModel.find(queryFilter).populate(
+            "author",
+            "fullname",
+        );
+        return res.status(200).json({
+            ok: true,
+            data: assessments,
+        });
+    } catch (error) {
+        next(error);
+    }
+}

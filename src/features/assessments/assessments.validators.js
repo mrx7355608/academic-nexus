@@ -8,6 +8,7 @@ const validSubjects = [
     "Object Oriented Programming",
     "Data Structures & Algorithms",
     "Data Communication & Computer Networks",
+    "Computer Architecture & Assembly Language",
     "Funtional English",
     "Applied Physics",
     "Web Programming",

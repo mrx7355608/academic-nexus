@@ -42,4 +42,6 @@ router.patch("/:id", isAuth, validateAssessment, controllers.editAssessment);
 // DELETE ASSESSMENT
 router.delete("/:id", isAuth, validateAssessment, controllers.deleteAssessment);
 
+router.get("/my/:type", isAuth, controllers.getMyAssessments);
+
 export default router;
