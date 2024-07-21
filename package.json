@@ -5,7 +5,7 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
-        "start": "node src/index.js",
+        "start": "node api/index.js",
         "dev": "nodemon src/index.js",
         "test": "echo \"No tests were found\""
     },
