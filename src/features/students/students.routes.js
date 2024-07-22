@@ -1,6 +1,7 @@
 import { Router } from "express";
 import ApiError from "../../utils/ApiError.js";
 import StudentModel from "./students.model.js";
+import validator from "validator";
 
 const router = Router();
 
@@ -33,6 +34,22 @@ router.get("/search", async (req, res, next) => {
     } catch (err) {
         return next(err);
     }
+});
+
+router.get("/student-profile/:id", async (req, res, next) => {
+    if (!validator.isMongoId(req.params.id)) {
+        return next(new ApiError("Invalid student id", 400));
+    }
+
+    const student = await StudentModel.findById(req.params.id);
+    if (!student) {
+        return next(new ApiError("Student not found", 404));
+    }
+
+    return res.status(200).json({
+        ok: true,
+        data: student,
+    });
 });
 
 export default router;

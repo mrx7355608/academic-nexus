@@ -42,6 +42,9 @@ router.patch("/:id", isAuth, validateAssessment, controllers.editAssessment);
 // DELETE ASSESSMENT
 router.delete("/:id", isAuth, validateAssessment, controllers.deleteAssessment);
 
+// GET ASSESSMETS BY TYPE
 router.get("/my/:type", isAuth, controllers.getMyAssessments);
 
+// GET ASSESSMENTS OF A STUDENT
+router.get("/student/:id", controllers.getStudentAssessments);
 export default router;

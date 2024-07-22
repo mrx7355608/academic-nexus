@@ -8,6 +8,7 @@ import {
     editAssessmentValidator,
 } from "./assessments.validators.js";
 import cloudinary from "cloudinary";
+import StudentModel from "../students/students.model.js";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUDNAME,
@@ -343,6 +344,32 @@ export async function getMyAssessments(req, res, next) {
         }
 
         const assessments = await AssessmentModel.find(queryFilter).populate(
+            "author",
+            "fullname",
+        );
+        return res.status(200).json({
+            ok: true,
+            data: assessments,
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getStudentAssessments(req, res, next) {
+    try {
+        const { id } = req.params;
+
+        if (!validator.isMongoId(id)) {
+            return next(new ApiError("Invalid mongo id"), 400);
+        }
+
+        const student = await StudentModel.findById(id);
+        if (!student) {
+            return next(new ApiError("Student not found"), 404);
+        }
+
+        const assessments = await AssessmentModel.find({ author: id }).populate(
             "author",
             "fullname",
         );

@@ -6,7 +6,7 @@
     "type": "module",
     "scripts": {
         "start": "node api/index.js",
-        "dev": "nodemon src/index.js",
+        "dev": "nodemon api/index.js",
         "test": "echo \"No tests were found\""
     },
     "dependencies": {
