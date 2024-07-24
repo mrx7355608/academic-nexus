@@ -67,7 +67,13 @@ export async function getAllAssessments(req, res, next) {
 
         // Deselect fileURL field from all the documents
         aggregateStages.push({
-            $project: { fileURL: 0, password: 0 },
+            $project: {
+                fileURL: 0,
+                password: 0,
+                publicId: 0,
+                updatedAt: 0,
+                __v: 0,
+            },
         });
 
         // Fetch data from database

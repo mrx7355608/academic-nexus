@@ -47,4 +47,5 @@ router.get("/my/:type", isAuth, controllers.getMyAssessments);
 
 // GET ASSESSMENTS OF A STUDENT
 router.get("/student/:id", controllers.getStudentAssessments);
+
 export default router;
