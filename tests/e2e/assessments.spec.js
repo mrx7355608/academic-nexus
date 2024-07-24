@@ -102,7 +102,13 @@ describe("Assessments tests", () => {
         });
     });
 
-    describe("Testing edit post", () => {});
+    describe("Testing edit post", () => {
+        it.todo("should not allow a user other than author to edit post");
+        it.todo("should edit post");
+    });
 
-    describe("Testing delete post", () => {});
+    describe("Testing delete post", () => {
+        it.todo("should not allow a user other than author to delete post");
+        it.todo("should delete post");
+    });
 });
