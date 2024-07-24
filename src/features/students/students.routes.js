@@ -2,10 +2,11 @@ import { Router } from "express";
 import ApiError from "../../utils/ApiError.js";
 import StudentModel from "./students.model.js";
 import validator from "validator";
+import { defaultLimiter } from "../../utils/rateLimiters.js";
 
 const router = Router();
 
-router.get("/me", async (req, res, next) => {
+router.get("/me", defaultLimiter, async (req, res, next) => {
     if (req.isAuthenticated()) {
         return res.status(200).json({
             ok: true,
@@ -16,7 +17,7 @@ router.get("/me", async (req, res, next) => {
     return next(new ApiError("Not authenticated", 401));
 });
 
-router.get("/search", async (req, res, next) => {
+router.get("/search", defaultLimiter, async (req, res, next) => {
     try {
         // If sname does not exist or is empty, handle that case
         if (!req.query.sname) {
@@ -43,7 +44,7 @@ router.get("/search", async (req, res, next) => {
     }
 });
 
-router.get("/student-profile/:id", async (req, res, next) => {
+router.get("/student-profile/:id", defaultLimiter, async (req, res, next) => {
     if (!validator.isMongoId(req.params.id)) {
         return next(new ApiError("Invalid student id", 400));
     }
