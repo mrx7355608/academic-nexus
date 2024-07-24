@@ -10,3 +10,7 @@ export async function connectDB(url) {
     cachedConnection = await mongoose.connect(url);
     console.log("Connected to database");
 }
+
+export async function disconnectDB() {
+    await mongoose.disconnect();
+}

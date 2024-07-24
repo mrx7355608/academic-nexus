@@ -18,6 +18,13 @@ router.get("/me", async (req, res, next) => {
 
 router.get("/search", async (req, res, next) => {
     try {
+        // If sname does not exist or is empty, handle that case
+        if (!req.query.sname) {
+            return next(
+                new ApiError("Please enter a student name to search", 400),
+            );
+        }
+
         const students = await StudentModel.find(
             {
                 fullname: {
@@ -25,7 +32,7 @@ router.get("/search", async (req, res, next) => {
                     $options: "i",
                 },
             },
-            "-googleId -email",
+            "-googleId -__v -updatedAt",
         );
         res.status(200).json({
             ok: true,
