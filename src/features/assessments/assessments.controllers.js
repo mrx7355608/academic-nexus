@@ -136,7 +136,7 @@ export async function upvoteAssessment(req, res, next) {
             },
             { new: true },
         );
-        return res.status(201).json({
+        return res.status(200).json({
             ok: true,
             data: {
                 upvotes: updated.upvotes,
@@ -160,7 +160,7 @@ export async function downvoteAssessment(req, res, next) {
             },
             { new: true },
         );
-        return res.status(201).json({
+        return res.status(200).json({
             ok: true,
             data: {
                 upvotes: updated.upvotes,
