@@ -3,15 +3,22 @@ import validateAssessment from "../../middlewares/validateAssessment.js";
 import isAuth from "../../middlewares/isAuth.js";
 import * as controllers from "./assessments.controllers.js";
 import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters.js";
+import cache from "../../middlewares/cache.js";
 
 const router = Router();
 
 // GET ALL ASSESSMENTS
-router.get("/", defaultLimiter, controllers.getAllAssessments);
+router.get(
+    "/",
+    cache("5 minutes"),
+    defaultLimiter,
+    controllers.getAllAssessments,
+);
 
 // GET ONE ASSESSMENT BY ID
 router.get(
     "/:id",
+    cache("20 minutes"),
     defaultLimiter,
     validateAssessment,
     controllers.getOneAssessment,
@@ -41,6 +48,7 @@ router.post(
 // VIEW ASSESSMENT FILE
 router.get(
     "/view-assessment-file/:id",
+    cache("2 minutes"),
     defaultLimiter,
     controllers.viewAssessmentFile,
 );
@@ -67,9 +75,20 @@ router.delete(
 );
 
 // GET ASSESSMETS BY TYPE
-router.get("/my/:type", defaultLimiter, isAuth, controllers.getMyAssessments);
+router.get(
+    "/my/:type",
+    cache("5 minutes"),
+    defaultLimiter,
+    isAuth,
+    controllers.getMyAssessments,
+);
 
 // GET ASSESSMENTS OF A STUDENT
-router.get("/student/:id", defaultLimiter, controllers.getStudentAssessments);
+router.get(
+    "/student/:id",
+    cache("2 minutes"),
+    defaultLimiter,
+    controllers.getStudentAssessments,
+);
 
 export default router;

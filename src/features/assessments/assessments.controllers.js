@@ -9,6 +9,7 @@ import {
 } from "./assessments.validators.js";
 import cloudinary from "cloudinary";
 import StudentModel from "../students/students.model.js";
+import apicache from "apicache";
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUDNAME,
@@ -115,6 +116,11 @@ export async function createAssessment(req, res, next) {
         createAssessmentValidator(data);
 
         await AssessmentModel.create({ ...data, author: req.user });
+
+        // Clear cache
+        apicache.clear("/api/assessments");
+        apicache.clear("/api/assessments/me");
+
         return res.status(201).json({
             ok: true,
             data: null,
@@ -136,6 +142,11 @@ export async function upvoteAssessment(req, res, next) {
             },
             { new: true },
         );
+
+        // Clear cache
+        apicache.clear("/api/assessments");
+        apicache.clear("/api/assessments/me");
+
         return res.status(200).json({
             ok: true,
             data: {
@@ -160,6 +171,11 @@ export async function downvoteAssessment(req, res, next) {
             },
             { new: true },
         );
+
+        // Clear cache
+        apicache.clear("/api/assessments");
+        apicache.clear("/api/assessments/me");
+
         return res.status(200).json({
             ok: true,
             data: {
@@ -289,6 +305,10 @@ export async function editAssessment(req, res, next) {
         updated.fileURL = undefined;
         updated.password = undefined;
 
+        // Clear cache
+        apicache.clear("/api/assessments");
+        apicache.clear("/api/assessments/me");
+
         return res.status(200).json({
             ok: true,
             data: updated,
@@ -318,6 +338,10 @@ export async function deleteAssessment(req, res, next) {
                     assessment.fileExtension === "docx" ? "raw" : "image",
             })
             .then(console.log);
+
+        // Clear cache
+        apicache.clear("/api/assessments");
+        apicache.clear("/api/assessments/me");
 
         return res.status(204).end();
     } catch (err) {

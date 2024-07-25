@@ -9,6 +9,7 @@ import MongoStore from "connect-mongo";
 import passportSetup from "./passportSetup.js";
 import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
 import passport from "passport";
+import compression from "compression";
 
 // ROUTERS
 import authRouter from "./features/auth/auth.routes.js";
@@ -21,6 +22,7 @@ export default function createExpressApp() {
     app.use(helmet());
     app.use(hpp());
     app.use(morgan("dev"));
+    app.use(compression());
     app.use(
         cors({
             origin: [
