@@ -33,6 +33,7 @@ export default function createExpressApp() {
         }),
     );
 
+    app.set("trust proxy", true);
     app.use(
         session({
             secret: process.env.SESSIONS_SECRET,
@@ -48,11 +49,11 @@ export default function createExpressApp() {
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
             }),
-            // proxy: true,
+            proxy: true,
+            name: "nvm",
         }),
     );
 
-    // app.set("trust proxy", true);
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(passport.initialize());
