@@ -33,6 +33,7 @@ export default function createExpressApp() {
         }),
     );
 
+    app.set("trust proxy", 1);
     app.use(
         session({
             secret: process.env.SESSIONS_SECRET,
@@ -43,6 +44,7 @@ export default function createExpressApp() {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
+                domain: process.env.CLIENT_URL,
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
@@ -58,7 +60,6 @@ export default function createExpressApp() {
     //     app.set("trust proxy", 1);
     // }
 
-    app.set("trust proxy", 1);
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(passport.initialize());
