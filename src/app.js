@@ -33,7 +33,6 @@ export default function createExpressApp() {
         }),
     );
 
-    app.set("trust proxy", true);
     app.use(
         session({
             secret: process.env.SESSIONS_SECRET,
@@ -51,10 +50,14 @@ export default function createExpressApp() {
                 ttl: 24 * 60 * 60, // 1 day in seconds
                 autoRemove: "native", // Automatically remove expired sessions
             }),
-            proxy: true,
+            proxy: process.env.NODE_ENV === "production" ? true : false,
             name: "nvm",
         }),
     );
+
+    if (process.env.NODE_ENV === "production") {
+        app.set("trust proxy", true);
+    }
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
