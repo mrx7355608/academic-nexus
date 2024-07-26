@@ -37,7 +37,7 @@ export default function createExpressApp() {
         session({
             secret: process.env.SESSIONS_SECRET,
             resave: false,
-            saveUninitialized: true,
+            saveUninitialized: false,
             cookie: {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
