@@ -48,11 +48,11 @@ export default function createExpressApp() {
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
             }),
-            proxy: true,
+            // proxy: true,
         }),
     );
 
-    app.set("trust proxy", true);
+    // app.set("trust proxy", true);
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(passport.initialize());
@@ -60,6 +60,7 @@ export default function createExpressApp() {
     passportSetup();
 
     app.use((req, res, next) => {
+        console.log("Cookies:", req.cookies);
         console.log("Session:", req.session);
         next();
     });
