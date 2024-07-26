@@ -37,28 +37,28 @@ export default function createExpressApp() {
         session({
             secret: process.env.SESSIONS_SECRET,
             resave: false,
-            saveUninitialized: false,
+            saveUninitialized: true,
             cookie: {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production" ? true : false,
-                sameSite:
-                    process.env.NODE_ENV === "production" ? "none" : "lax",
+                secure: true,
+                sameSite: "none",
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
                 ttl: 24 * 60 * 60, // 1 day in seconds
                 autoRemove: "native", // Automatically remove expired sessions
             }),
-            proxy: process.env.NODE_ENV === "production" ? true : false,
+            proxy: true,
             name: "nvm",
         }),
     );
 
-    if (process.env.NODE_ENV === "production") {
-        app.set("trust proxy", true);
-    }
+    // if (process.env.NODE_ENV === "production") {
+    //     app.set("trust proxy", 1);
+    // }
 
+    app.set("trust proxy", 1);
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(passport.initialize());
