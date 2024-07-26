@@ -48,6 +48,8 @@ export default function createExpressApp() {
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
+                ttl: 24 * 60 * 60, // 1 day in seconds
+                autoRemove: "native", // Automatically remove expired sessions
             }),
             proxy: true,
             name: "nvm",
