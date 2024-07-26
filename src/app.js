@@ -19,7 +19,7 @@ import assessmentRouter from "./features/assessments/assessments.routes.js";
 export default function createExpressApp() {
     const app = express();
 
-    app.use(helmet());
+    // app.use(helmet());
     app.use(hpp());
     app.use(morgan("dev"));
     app.use(compression());
