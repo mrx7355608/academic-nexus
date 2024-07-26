@@ -38,12 +38,13 @@ export default function createExpressApp() {
             secret: process.env.SESSIONS_SECRET,
             resave: false,
             saveUninitialized: false,
-            name: "sid",
+            name: "nvm",
             cookie: {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
-                secure: true,
-                sameSite: "none",
+                secure: process.env.NODE_ENV === "production" ? true : false,
+                sameSite:
+                    process.env.NODE_ENV === "production" ? "none" : undefined,
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
