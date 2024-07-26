@@ -48,7 +48,6 @@ export default function createExpressApp() {
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
             }),
-            proxy: true,
         }),
     );
 
