@@ -42,7 +42,7 @@ export default function createExpressApp() {
             cookie: {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
-                secure: process.env.NODE_ENV === "production" ? true : false,
+                secure: true,
                 sameSite: "none",
             },
             store: MongoStore.create({
