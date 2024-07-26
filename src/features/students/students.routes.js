@@ -7,7 +7,7 @@ import cache from "../../middlewares/cache.js";
 
 const router = Router();
 
-router.get("/me", cache("1 day"), defaultLimiter, async (req, res, next) => {
+router.get("/me", defaultLimiter, async (req, res, next) => {
     if (req.isAuthenticated()) {
         return res.status(200).json({
             ok: true,
