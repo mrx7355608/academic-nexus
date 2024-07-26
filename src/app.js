@@ -44,14 +44,12 @@ export default function createExpressApp() {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
-                domain: process.env.CLIENT_URL,
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
                 ttl: 24 * 60 * 60, // 1 day in seconds
                 autoRemove: "native", // Automatically remove expired sessions
             }),
-            proxy: true,
             name: "nvm",
         }),
     );
