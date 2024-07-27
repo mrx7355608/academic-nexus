@@ -10,6 +10,9 @@ import passportSetup from "./passportSetup.js";
 import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
 import passport from "passport";
 import compression from "compression";
+import path, { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import cookieParser from "cookie-parser";
 
 // ROUTERS
 import authRouter from "./features/auth/auth.routes.js";
@@ -18,22 +21,37 @@ import assessmentRouter from "./features/assessments/assessments.routes.js";
 
 export default function createExpressApp() {
     const app = express();
+    const __dirname = dirname(fileURLToPath(import.meta.url));
 
-    // app.use(helmet());
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: [
+                        "'self'",
+                        "https://upload-widget.cloudinary.com",
+                    ],
+                    styleSrc: ["'self'", "'unsafe-inline'"],
+                    imgSrc: ["'self'", "https://lh3.googleusercontent.com"],
+                    upgradeInsecureRequests: [],
+                    frameSrc: [
+                        "'self'",
+                        "https://upload-widget.cloudinary.com",
+                    ],
+                },
+            },
+        }),
+    );
     app.use(hpp());
     app.use(morgan("dev"));
     app.use(compression());
     app.use(
         cors({
-            origin: [
-                process.env.CLIENT_URL,
-                "https://view.officeapps.live.com",
-            ],
-            credentials: true,
+            origin: "https://view.officeapps.live.com",
         }),
     );
 
-    app.set("trust proxy", 1);
     app.use(
         session({
             secret: process.env.SESSIONS_SECRET,
@@ -42,38 +60,48 @@ export default function createExpressApp() {
             cookie: {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
-                secure: true,
-                sameSite: "none",
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
-                ttl: 24 * 60 * 60, // 1 day in seconds
-                autoRemove: "native", // Automatically remove expired sessions
+                ttl: 24 * 60 * 60,
+                autoRemove: "native",
             }),
             name: "nvm",
         }),
     );
 
-    // if (process.env.NODE_ENV === "production") {
-    //     app.set("trust proxy", 1);
-    // }
-
+    app.use(cookieParser());
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
+    app.use(
+        express.static(path.join(__dirname, "..", "dist"), {
+            setHeaders: (res, path) => {
+                if (path.endsWith(".js") || path.endsWith(".css")) {
+                    res.setHeader("Cache-Control", "max-age=31536000"); // cache css and js files for 1 year
+                } else {
+                    res.setHeader(
+                        "Cache-Control",
+                        "no-store, no-cache, must-revalidate",
+                    );
+                }
+            },
+        }),
+    );
     app.use(passport.initialize());
     app.use(passport.session());
     passportSetup();
-
-    app.use((req, res, next) => {
-        console.log("Cookies:", req.cookies);
-        console.log("Session:", req.session);
-        next();
-    });
 
     // ROUTES
     app.use("/api/auth", authRouter);
     app.use("/api/students", studentRouter);
     app.use("/api/assessments", assessmentRouter);
+
+    // SERVE REACT APP
+    app.get("/*", (_req, res) => {
+        res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+    });
 
     // ERROR HANDLERS
     app.use(catch404);
