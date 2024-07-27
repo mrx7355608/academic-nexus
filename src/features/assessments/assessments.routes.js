@@ -3,17 +3,11 @@ import validateAssessment from "../../middlewares/validateAssessment.js";
 import isAuth from "../../middlewares/isAuth.js";
 import * as controllers from "./assessments.controllers.js";
 import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters.js";
-import cache from "../../middlewares/cache.js";
 
 const router = Router();
 
 // GET ALL ASSESSMENTS
-router.get(
-    "/",
-    cache("5 minutes"),
-    defaultLimiter,
-    controllers.getAllAssessments,
-);
+router.get("/", defaultLimiter, controllers.getAllAssessments);
 
 // GET ONE ASSESSMENT BY ID
 router.get(
