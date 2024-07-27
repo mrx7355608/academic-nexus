@@ -23,6 +23,8 @@ export default function createExpressApp() {
     const app = express();
     const __dirname = dirname(fileURLToPath(import.meta.url));
 
+    console.log(__dirname);
+
     app.use(
         helmet({
             contentSecurityPolicy: {
