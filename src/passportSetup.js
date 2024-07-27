@@ -11,7 +11,6 @@ export default function passportSetup() {
                 callbackURL: `${process.env.SERVER_URL}/api/auth/google/callback`,
             },
             async function (_accessToken, _refreshToken, profile, done) {
-                // Validate domain of email to allow only university students
                 if (!profile.emails[0].value.endsWith("@iqra.edu.pk")) {
                     return done(null, false, {
                         message:
