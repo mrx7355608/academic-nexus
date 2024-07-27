@@ -78,7 +78,7 @@ export default function createExpressApp() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
     app.use(
-        express.static(path.join(__dirname, "..", "dist"), {
+        express.static(path.resolve("dist"), {
             setHeaders: (res, path) => {
                 if (path.endsWith(".js") || path.endsWith(".css")) {
                     res.setHeader("Cache-Control", "max-age=31536000"); // cache css and js files for 1 year
@@ -102,7 +102,7 @@ export default function createExpressApp() {
 
     // SERVE REACT APP
     app.get("/*", (_req, res) => {
-        res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+        res.sendFile(path.resolve("dist", "index.html"));
     });
 
     // ERROR HANDLERS
