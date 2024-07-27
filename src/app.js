@@ -61,7 +61,6 @@ export default function createExpressApp() {
                 maxAge: 24 * 3600 * 1000,
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
             },
             store: MongoStore.create({
                 client: mongoose.connection.getClient(),
@@ -69,6 +68,7 @@ export default function createExpressApp() {
                 autoRemove: "native",
             }),
             name: "nvm",
+            proxy: true,
         }),
     );
 
