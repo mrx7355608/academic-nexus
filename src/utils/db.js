@@ -1,20 +1,18 @@
 import mongoose from "mongoose";
 
-let cached = global.mongoose;
+let cachedDb = null;
 
 export async function connectDB(url) {
-    if (cached && cached.conn && cached.conn.readyState === 1) {
-        console.log("Using cached connection");
-        return cached.conn;
+    if (cachedDb) {
+        console.log("Using cached db connection");
+        return cachedDb;
     }
 
-    if (cached && cached.conn) {
-        await cached.conn.close();
-    }
+    const db = await mongoose.connect(url);
+    console.log("New database connection established");
 
-    cached.conn = await mongoose.connect(url);
-    console.log("Connected to database");
-    return cached.conn;
+    cachedDb = db;
+    return db;
 }
 
 export async function disconnectDB() {

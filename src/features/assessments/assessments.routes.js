@@ -40,7 +40,7 @@ router.post(
 
 // VIEW ASSESSMENT FILE
 router.get(
-    "/view-assessment-file/:id",
+    "/view-assessment/:id",
     defaultLimiter,
     controllers.viewAssessmentFile,
 );
