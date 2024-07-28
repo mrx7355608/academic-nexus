@@ -11,6 +11,7 @@ export async function connectDB(url) {
             .then(() => mongoose);
         await cachedConnection;
         console.log("established new connection");
+        return cachedConnection;
     }
 
     console.log("using old connection");
