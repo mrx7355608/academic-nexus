@@ -1,1 +1,0 @@
-import{q as i,j as e,H as n}from"./index-BUANxag7.js";import{D as s}from"./chunk-W7WUSNWJ-BGHJRy3Y.js";function l({title:o}){const{colorMode:r}=i();return e.jsxs(e.Fragment,{children:[e.jsx(n,{fontWeight:700,fontSize:"4xl",children:o}),e.jsx(s,{w:"full",bg:r==="light"?"gray":"gray.800",rounded:"full",h:"2px",flex:1})]})}export{l as P};
