@@ -21,7 +21,6 @@ import assessmentRouter from "./features/assessments/assessments.routes.js";
 
 export default function createExpressApp() {
     const app = express();
-    const __dirname = dirname(fileURLToPath(import.meta.url));
 
     app.use(
         helmet({
@@ -46,6 +45,7 @@ export default function createExpressApp() {
     app.use(hpp());
     app.use(morgan("dev"));
     app.use(compression());
+    app.set("trust proxy", true);
     app.use(
         cors({
             origin: "https://view.officeapps.live.com",
