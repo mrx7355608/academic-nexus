@@ -10,8 +10,10 @@ export async function connectDB(url) {
             })
             .then(() => mongoose);
         await cachedConnection;
+        console.log("established new connection");
     }
 
+    console.log("using old connection");
     return cachedConnection;
 }
 
