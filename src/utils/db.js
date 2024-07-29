@@ -1,18 +1,8 @@
 import mongoose from "mongoose";
 
-let cachedConnection = null;
-
 export async function connectDB(url) {
-    if (cachedConnection == null) {
-        cachedConnection = mongoose
-            .connect(url, {
-                serverSelectionTimeoutMS: 5000,
-            })
-            .then(() => mongoose);
-        await cachedConnection;
-    }
-
-    return cachedConnection;
+    await mongoose.connect(url);
+    console.log("Database connected");
 }
 
 export async function disconnectDB() {

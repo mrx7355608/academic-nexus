@@ -10,8 +10,7 @@ import passportSetup from "./passportSetup.js";
 import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
 import passport from "passport";
 import compression from "compression";
-import path, { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import path from "node:path";
 import cookieParser from "cookie-parser";
 
 // ROUTERS
