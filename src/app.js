@@ -1,10 +1,10 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import hpp from "hpp";
 import morgan from "morgan";
 import session from "express-session";
-import mongoose from "mongoose";
 import MongoStore from "connect-mongo";
 import passportSetup from "./passportSetup.js";
 import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
@@ -12,6 +12,8 @@ import passport from "passport";
 import compression from "compression";
 import path from "node:path";
 import cookieParser from "cookie-parser";
+import { connectDB } from "./utils/db.js";
+import mongoose from "mongoose";
 
 // ROUTERS
 import authRouter from "./features/auth/auth.routes.js";
@@ -20,6 +22,11 @@ import assessmentRouter from "./features/assessments/assessments.routes.js";
 
 export default function createExpressApp() {
     const app = express();
+
+    app.use(async (_req, _res, next) => {
+        await connectDB(process.env.DB_URL);
+        next();
+    });
 
     app.use(
         helmet({
@@ -62,7 +69,9 @@ export default function createExpressApp() {
                 secure: process.env.NODE_ENV === "production",
             },
             store: MongoStore.create({
-                client: mongoose.connection.getClient(),
+                client: connectDB(process.env.DB_URL).then(() =>
+                    mongoose.connection.getClient(),
+                ),
                 ttl: 24 * 60 * 60,
                 autoRemove: "native",
             }),
