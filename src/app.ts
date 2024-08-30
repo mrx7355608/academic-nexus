@@ -6,19 +6,20 @@ import hpp from "hpp";
 import morgan from "morgan";
 import session from "express-session";
 import MongoStore from "connect-mongo";
-import passportSetup from "./passportSetup.js";
-import { catch404, globalErrorHandler } from "./utils/errorHandlers.js";
+import passportSetup from "./passportSetup";
+import { catch404, globalErrorHandler } from "./utils/errorHandlers";
 import passport from "passport";
 import compression from "compression";
 import path from "node:path";
 import cookieParser from "cookie-parser";
-import { connectDB } from "./utils/db.js";
+import { connectDB } from "./utils/db";
 import mongoose from "mongoose";
+import config from "./config/config";
 
 // ROUTERS
-import authRouter from "./features/auth/auth.routes.js";
-import studentRouter from "./features/students/students.routes.js";
-import assessmentRouter from "./features/assessments/assessments.routes.js";
+import authRouter from "./features/auth/auth.routes";
+import studentRouter from "./features/students/students.routes";
+import assessmentRouter from "./features/assessments/assessments.routes";
 
 export default function createExpressApp() {
     const app = express();
@@ -60,7 +61,7 @@ export default function createExpressApp() {
 
     app.use(
         session({
-            secret: process.env.SESSIONS_SECRET,
+            secret: config.sessionSecret,
             resave: false,
             saveUninitialized: false,
             cookie: {

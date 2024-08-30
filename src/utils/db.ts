@@ -1,47 +1,37 @@
 import mongoose from "mongoose";
+import config from "../config/config";
+declare global {
+    var mongoose: any; // This must be a `var` and not a `let / const`
+}
 
-const global = {
-    mongoose: null,
-};
+const MONGODB_URI = config.dbUrl;
 
-//https://github.com/vercel/next.js/blob/canary/examples/with-mongodb-mongoose/lib/dbConnect.js
+if (!MONGODB_URI) {
+    throw new Error(
+        "Please define the MONGODB_URI environment variable inside .env",
+    );
+}
+
 let cached = global.mongoose;
 
 if (!cached) {
     cached = global.mongoose = { conn: null, promise: null };
 }
 
-export async function connectDB(url) {
+async function dbConnect() {
     if (cached.conn) {
-        console.log("Using cached connection");
         return cached.conn;
     }
-
     if (!cached.promise) {
         const opts = {
-            maxPoolSize: 1,
-            minPoolSize: 1,
-            socketTimeoutMS: 10000,
             bufferCommands: false,
-            serverSelectionTimeoutMS: 8000, //Stay within Vercel's 10 second function limit
-            heartbeatFrequencyMS: 10000, //Attempting to see if this reduces query timeouts
         };
-
-        console.log("---Connecting to MongoDB---");
-
-        try {
-            cached.promise = mongoose
-                .connect(url || "", opts)
-                .then((mongoose) => {
-                    console.log("---Connected!---");
-                    return mongoose;
-                });
-        } catch (e) {
-            console.log("---Error connecting to MongoDB---", e);
-            throw new Error("Error connecting to database");
-        }
+        cached.promise = mongoose
+            .connect(MONGODB_URI, opts)
+            .then((mongoose) => {
+                return mongoose;
+            });
     }
-
     try {
         cached.conn = await cached.promise;
     } catch (e) {
@@ -52,6 +42,4 @@ export async function connectDB(url) {
     return cached.conn;
 }
 
-export async function disconnectDB() {
-    await mongoose.disconnect();
-}
+export default dbConnect;

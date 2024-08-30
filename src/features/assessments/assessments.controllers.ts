@@ -1,34 +1,46 @@
-import AssessmentModel from "./assessments.model.js";
+import AssessmentModel from "./assessments.model";
 import validator from "validator";
 import bcrypt from "bcryptjs";
-import ApiError from "../../utils/ApiError.js";
+import ApiError from "../../utils/ApiError";
 import https from "https";
 import {
     createAssessmentValidator,
     editAssessmentValidator,
-} from "./assessments.validators.js";
-import cloudinary from "cloudinary";
-import StudentModel from "../students/students.model.js";
+} from "./assessments.validators";
+import { v2 as cloudinary } from "cloudinary";
+import StudentModel from "../students/students.model";
+import config from "../../config/config";
+import { NextFunction, Request, Response } from "express";
+import { PipelineStage } from "mongoose";
 
 cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUDNAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: config.cloudinaryCloudName,
+    api_key: config.cloudinaryApiKey,
+    api_secret: config.cloudinaryApiSecret,
 });
 
-export async function getAllAssessments(req, res, next) {
+interface IMyRequest extends Request {
+    assessment: any;
+}
+type Controller = (
+    req: IMyRequest,
+    res: Response,
+    next: NextFunction,
+) => Promise<any>;
+
+export const getAllAssessments: Controller = async (req, res, next) => {
     try {
-        const aggregateStages = [];
+        const aggregateStages: PipelineStage[] = [];
         aggregateStages.push({ $match: { isPublic: true } });
 
         // Filtering
         if (req.query.subjects) {
-            const subjects = req.query.subjects.split(",");
+            const subjects = (req.query.subjects as string).split(",");
             aggregateStages.push({ $match: { subject: { $in: subjects } } });
         }
 
         if (req.query.types) {
-            const types = req.query.types.split(",");
+            const types = (req.query.subjects as string).split(",");
             aggregateStages.push({ $match: { type: { $in: types } } });
         }
 
@@ -60,7 +72,10 @@ export async function getAllAssessments(req, res, next) {
         if (req.query.s) {
             aggregateStages.push({
                 $match: {
-                    title: { $regex: new RegExp(req.query.s), $options: "i" },
+                    title: {
+                        $regex: new RegExp(req.query.s as string),
+                        $options: "i",
+                    },
                 },
             });
         }
@@ -90,9 +105,9 @@ export async function getAllAssessments(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function getOneAssessment(req, res, next) {
+export const getOneAssessment: Controller = async (req, res, next) => {
     try {
         const assessment = await req.assessment.populate(
             "author",
@@ -105,9 +120,9 @@ export async function getOneAssessment(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function createAssessment(req, res, next) {
+export const createAssessment: Controller = async (req, res, next) => {
     try {
         const data = req.body;
 
@@ -123,17 +138,17 @@ export async function createAssessment(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function upvoteAssessment(req, res, next) {
+export const upvoteAssessment: Controller = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         const updated = await AssessmentModel.findByIdAndUpdate(
             id,
             {
-                $push: { upvotes: req.user._id },
-                $pull: { downvotes: req.user._id },
+                $push: { upvotes: (req.user as any)._id },
+                $pull: { downvotes: (req.user as any)._id },
             },
             { new: true },
         );
@@ -141,24 +156,24 @@ export async function upvoteAssessment(req, res, next) {
         return res.status(200).json({
             ok: true,
             data: {
-                upvotes: updated.upvotes,
-                downvotes: updated.downvotes,
+                upvotes: updated!.upvotes,
+                downvotes: updated!.downvotes,
             },
         });
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function downvoteAssessment(req, res, next) {
+export const downvoteAssessment: Controller = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         const updated = await AssessmentModel.findByIdAndUpdate(
             id,
             {
-                $pull: { upvotes: req.user._id },
-                $push: { downvotes: req.user._id },
+                $pull: { upvotes: (req.user as any)._id },
+                $push: { downvotes: (req.user as any)._id },
             },
             { new: true },
         );
@@ -166,18 +181,27 @@ export async function downvoteAssessment(req, res, next) {
         return res.status(200).json({
             ok: true,
             data: {
-                upvotes: updated.upvotes,
-                downvotes: updated.downvotes,
+                upvotes: updated!.upvotes,
+                downvotes: updated!.downvotes,
             },
         });
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function viewAssessmentFile(req, res, next) {
+type IContent = {
+    pdf: string;
+    doc: string;
+    docx: string;
+    png: string;
+    jpg: string;
+    jpeg: string;
+    [key: string]: string;
+};
+export const viewAssessmentFile: Controller = async (req, res, next) => {
     try {
-        const contentTypeMap = {
+        const contentTypeMap: IContent = {
             pdf: "application/pdf",
             doc: "application/msword",
             docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -214,11 +238,11 @@ export async function viewAssessmentFile(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function downloadFile(req, res, next) {
+export const downloadFile: Controller = async (req, res, next) => {
     try {
-        const contentTypeMap = {
+        const contentTypeMap: IContent = {
             pdf: "application/pdf",
             doc: "application/msword",
             docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -267,14 +291,14 @@ export async function downloadFile(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function editAssessment(req, res, next) {
+export const editAssessment: Controller = async (req, res, next) => {
     try {
         const assessment = req.assessment;
 
         // Check if author matches
-        if (String(assessment.author) !== String(req.user._id)) {
+        if (String(assessment.author) !== String((req.user as any)._id)) {
             return next(new ApiError("You cannot edit this assessment", 403));
         }
 
@@ -299,14 +323,14 @@ export async function editAssessment(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function deleteAssessment(req, res, next) {
+export const deleteAssessment: Controller = async (req, res, next) => {
     try {
         const assessment = req.assessment;
 
         // Check if author matches
-        if (String(assessment.author) !== String(req.user._id)) {
+        if (String(assessment.author) !== String((req.user as any)._id)) {
             return next(new ApiError("You cannot delete this assessment", 403));
         }
 
@@ -314,7 +338,7 @@ export async function deleteAssessment(req, res, next) {
         await AssessmentModel.findByIdAndDelete(req.params.id);
 
         // Also delete file from cloudnary
-        cloudinary.v2.api
+        cloudinary.api
             .delete_resources([assessment.publicId], {
                 type: "upload",
                 resource_type:
@@ -326,9 +350,9 @@ export async function deleteAssessment(req, res, next) {
     } catch (err) {
         return next(err);
     }
-}
+};
 
-export async function getMyAssessments(req, res, next) {
+export const getMyAssessments: Controller = async (req, res, next) => {
     try {
         const { type } = req.params;
 
@@ -349,7 +373,9 @@ export async function getMyAssessments(req, res, next) {
 
         // Get subject from query
         if (req.query.subject) {
-            queryFilter.subject = req.query.subject;
+            queryFilter = Object.assign(queryFilter, {
+                subject: req.query.subject,
+            });
         }
 
         const assessments = await AssessmentModel.find(queryFilter).populate(
@@ -363,19 +389,19 @@ export async function getMyAssessments(req, res, next) {
     } catch (error) {
         next(error);
     }
-}
+};
 
-export async function getStudentAssessments(req, res, next) {
+export const getStudentAssessments: Controller = async (req, res, next) => {
     try {
         const { id } = req.params;
 
         if (!validator.isMongoId(id)) {
-            return next(new ApiError("Invalid mongo id"), 400);
+            return next(new ApiError("Invalid mongo id", 400));
         }
 
         const student = await StudentModel.findById(id);
         if (!student) {
-            return next(new ApiError("Student not found"), 404);
+            return next(new ApiError("Student not found", 404));
         }
 
         const assessments = await AssessmentModel.find({ author: id }).populate(
@@ -389,4 +415,4 @@ export async function getStudentAssessments(req, res, next) {
     } catch (error) {
         next(error);
     }
-}
+};

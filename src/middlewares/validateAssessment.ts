@@ -1,8 +1,18 @@
 import validator from "validator";
-import ApiError from "../utils/ApiError.js";
-import AssessmentModel from "../features/assessments/assessments.model.js";
+import ApiError from "../utils/ApiError";
+import AssessmentModel from "../features/assessments/assessments.model";
+import { Request, Response, NextFunction } from "express";
 
-export default async function validateAssessment(req, res, next) {
+interface IMyRequest extends Request {
+    // TODO: update assessment type here
+    assessment: any;
+}
+
+export default async function validateAssessment(
+    req: IMyRequest,
+    _res: Response,
+    next: NextFunction,
+) {
     try {
         // Validate assessment id
         if (!validator.isMongoId(req.params.id)) {
