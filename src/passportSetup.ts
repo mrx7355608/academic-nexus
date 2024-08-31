@@ -1,4 +1,4 @@
-import StudentModel from "./features/students/students.model.js";
+import StudentModel from "./features/students/students.model";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import config from "./config/config";

@@ -10,7 +10,7 @@ import {
 import { v2 as cloudinary } from "cloudinary";
 import StudentModel from "../students/students.model";
 import config from "../../config/config";
-import { Request, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
 
 cloudinary.config({
@@ -18,10 +18,6 @@ cloudinary.config({
     api_key: config.cloudinaryApiKey,
     api_secret: config.cloudinaryApiSecret,
 });
-
-interface IMyRequest extends Request {
-    assessment: any;
-}
 
 const getAllAssessments: RequestHandler = async (req, res, next) => {
     try {

@@ -1,7 +1,7 @@
 import joi from "joi";
 import validator from "validator";
-import ApiError from "../../utils/ApiError.js";
-import { IAssessmentInput } from "./assessments.type.js";
+import ApiError from "../../utils/ApiError";
+import { IAssessmentInput } from "./assessments.type";
 
 const validSubjects = [
     "Linear Algebra",

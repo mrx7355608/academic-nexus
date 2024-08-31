@@ -1,8 +1,8 @@
 import { Router } from "express";
-import ApiError from "../../utils/ApiError.js";
-import StudentModel from "./students.model.js";
+import ApiError from "../../utils/ApiError";
+import StudentModel from "./students.model";
 import validator from "validator";
-import { defaultLimiter } from "../../utils/rateLimiters.js";
+import { defaultLimiter } from "../../utils/rateLimiters";
 
 const router = Router();
 

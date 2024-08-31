@@ -25,7 +25,7 @@ export default function createExpressApp() {
     const app = express();
 
     app.use(async (_req, _res, next) => {
-        await connectDB(process.env.DB_URL);
+        await connectDB();
         next();
     });
 
@@ -52,7 +52,7 @@ export default function createExpressApp() {
     app.use(hpp());
     app.use(morgan("dev"));
     app.use(compression());
-    app.set("trust proxy", true);
+    app.set("trust proxy", false);
     app.use(
         cors({
             origin: "https://view.officeapps.live.com",
@@ -70,11 +70,7 @@ export default function createExpressApp() {
                 secure: process.env.NODE_ENV === "production",
             },
             store: MongoStore.create({
-                client: connectDB(process.env.DB_URL).then(() =>
-                    mongoose.connection.getClient(),
-                ),
-                ttl: 24 * 60 * 60,
-                autoRemove: "native",
+                client: mongoose.connection.getClient(),
             }),
             name: "nvm",
             proxy: true,

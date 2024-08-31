@@ -1,8 +1,8 @@
 import { Router } from "express";
-import validateAssessment from "../../middlewares/validateAssessment.js";
-import isAuth from "../../middlewares/isAuth.js";
+import validateAssessment from "../../middlewares/validateAssessment";
+import isAuth from "../../middlewares/isAuth";
 import assessmentControllers from "./assessments.controllers";
-import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters.js";
+import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters";
 
 const router = Router();
 
