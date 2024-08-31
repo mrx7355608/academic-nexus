@@ -1,24 +1,29 @@
 import { Router } from "express";
 import validateAssessment from "../../middlewares/validateAssessment.js";
 import isAuth from "../../middlewares/isAuth.js";
-import * as controllers from "./assessments.controllers.js";
+import assessmentControllers from "./assessments.controllers";
 import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters.js";
 
 const router = Router();
 
 // GET ALL ASSESSMENTS
-router.get("/", defaultLimiter, controllers.getAllAssessments);
+router.get("/", defaultLimiter, assessmentControllers.getAllAssessments);
 
 // GET ONE ASSESSMENT BY ID
 router.get(
     "/:id",
     defaultLimiter,
     validateAssessment,
-    controllers.getOneAssessment,
+    assessmentControllers.getOneAssessment,
 );
 
 // CREATE NEW ASSESSMENTS
-router.post("/", defaultLimiter, isAuth, controllers.createAssessment);
+router.post(
+    "/",
+    defaultLimiter,
+    isAuth,
+    assessmentControllers.createAssessment,
+);
 
 // UPVOTE ASSESSMENT
 router.post(
@@ -26,7 +31,7 @@ router.post(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    controllers.upvoteAssessment,
+    assessmentControllers.upvoteAssessment,
 );
 
 // DOWNVOTE ASSESSMENTS
@@ -35,18 +40,22 @@ router.post(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    controllers.downvoteAssessment,
+    assessmentControllers.downvoteAssessment,
 );
 
 // VIEW ASSESSMENT FILE
 router.get(
     "/view-assessment/:id",
     defaultLimiter,
-    controllers.viewAssessmentFile,
+    assessmentControllers.viewAssessmentFile,
 );
 
 // DOWNLOAD ASSESSMENT FILE
-router.post("/download-file/:id", passowrdLimiter, controllers.downloadFile);
+router.post(
+    "/download-file/:id",
+    passowrdLimiter,
+    assessmentControllers.downloadFile,
+);
 
 // EDIT ASSESSMENT
 router.patch(
@@ -54,7 +63,7 @@ router.patch(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    controllers.editAssessment,
+    assessmentControllers.editAssessment,
 );
 
 // DELETE ASSESSMENT
@@ -63,13 +72,22 @@ router.delete(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    controllers.deleteAssessment,
+    assessmentControllers.deleteAssessment,
 );
 
 // GET ASSESSMETS BY TYPE
-router.get("/my/:type", defaultLimiter, isAuth, controllers.getMyAssessments);
+router.get(
+    "/my/:type",
+    defaultLimiter,
+    isAuth,
+    assessmentControllers.getMyAssessments,
+);
 
 // GET ASSESSMENTS OF A STUDENT
-router.get("/student/:id", defaultLimiter, controllers.getStudentAssessments);
+router.get(
+    "/student/:id",
+    defaultLimiter,
+    assessmentControllers.getStudentAssessments,
+);
 
 export default router;

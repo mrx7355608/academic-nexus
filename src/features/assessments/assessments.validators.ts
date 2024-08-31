@@ -1,6 +1,7 @@
 import joi from "joi";
 import validator from "validator";
 import ApiError from "../../utils/ApiError.js";
+import { IAssessmentInput } from "./assessments.type.js";
 
 const validSubjects = [
     "Linear Algebra",
@@ -95,13 +96,6 @@ const createValidationSchema = joi.object({
     isPublic: joi.boolean(),
     fileExtension: joi.string(),
 
-    password: joi.string().min(8).max(20).required().messages({
-        "string.min": "Password should be 8 characters atleast",
-        "string.max": "Password cannot be longer than 20 characters",
-        "string.empty": "Password cannot be empty",
-        "string.base": "Invalid password",
-        "any.required": "Password is required",
-    }),
     title: joi.string().min(10).max(200).required().messages({
         "string.min": "Title should be 10 characters atleast",
         "string.max": "Title cannot be longer than 200 characters",
@@ -132,14 +126,14 @@ const createValidationSchema = joi.object({
         }),
 });
 
-export function editAssessmentValidator(data) {
+export function editAssessmentValidator(data: IAssessmentInput) {
     const { error } = editValidationSchema.validate(data);
     if (error) {
         throw new ApiError(error.message, 400);
     }
 }
 
-export function createAssessmentValidator(data) {
+export function createAssessmentValidator(data: IAssessmentInput) {
     const { error } = createValidationSchema.validate(data);
     if (error) {
         throw new ApiError(error.message, 400);

@@ -3,13 +3,8 @@ import ApiError from "../utils/ApiError";
 import AssessmentModel from "../features/assessments/assessments.model";
 import { Request, Response, NextFunction } from "express";
 
-interface IMyRequest extends Request {
-    // TODO: update assessment type here
-    assessment: any;
-}
-
 export default async function validateAssessment(
-    req: IMyRequest,
+    req: Request,
     _res: Response,
     next: NextFunction,
 ) {
@@ -25,7 +20,7 @@ export default async function validateAssessment(
             return next(new ApiError("Assessment not found", 404));
         }
 
-        req.assessment = assessment;
+        (req as any).assessment = assessment;
         return next();
     } catch (err) {
         return next(err);

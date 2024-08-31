@@ -10,7 +10,7 @@ import {
 import { v2 as cloudinary } from "cloudinary";
 import StudentModel from "../students/students.model";
 import config from "../../config/config";
-import { NextFunction, Request, Response } from "express";
+import { Request, RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
 
 cloudinary.config({
@@ -22,13 +22,8 @@ cloudinary.config({
 interface IMyRequest extends Request {
     assessment: any;
 }
-type Controller = (
-    req: IMyRequest,
-    res: Response,
-    next: NextFunction,
-) => Promise<any>;
 
-export const getAllAssessments: Controller = async (req, res, next) => {
+const getAllAssessments: RequestHandler = async (req, res, next) => {
     try {
         const aggregateStages: PipelineStage[] = [];
         aggregateStages.push({ $match: { isPublic: true } });
@@ -107,9 +102,9 @@ export const getAllAssessments: Controller = async (req, res, next) => {
     }
 };
 
-export const getOneAssessment: Controller = async (req, res, next) => {
+const getOneAssessment: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = await req.assessment.populate(
+        const assessment = await (req as any).assessment.populate(
             "author",
             "fullname profilePicture",
         );
@@ -122,7 +117,7 @@ export const getOneAssessment: Controller = async (req, res, next) => {
     }
 };
 
-export const createAssessment: Controller = async (req, res, next) => {
+const createAssessment: RequestHandler = async (req, res, next) => {
     try {
         const data = req.body;
 
@@ -140,7 +135,7 @@ export const createAssessment: Controller = async (req, res, next) => {
     }
 };
 
-export const upvoteAssessment: Controller = async (req, res, next) => {
+const upvoteAssessment: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -165,7 +160,7 @@ export const upvoteAssessment: Controller = async (req, res, next) => {
     }
 };
 
-export const downvoteAssessment: Controller = async (req, res, next) => {
+const downvoteAssessment: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -199,7 +194,7 @@ type IContent = {
     jpeg: string;
     [key: string]: string;
 };
-export const viewAssessmentFile: Controller = async (req, res, next) => {
+const viewAssessmentFile: RequestHandler = async (req, res, next) => {
     try {
         const contentTypeMap: IContent = {
             pdf: "application/pdf",
@@ -240,7 +235,7 @@ export const viewAssessmentFile: Controller = async (req, res, next) => {
     }
 };
 
-export const downloadFile: Controller = async (req, res, next) => {
+const downloadFile: RequestHandler = async (req, res, next) => {
     try {
         const contentTypeMap: IContent = {
             pdf: "application/pdf",
@@ -293,9 +288,9 @@ export const downloadFile: Controller = async (req, res, next) => {
     }
 };
 
-export const editAssessment: Controller = async (req, res, next) => {
+const editAssessment: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = req.assessment;
+        const assessment = (req as any).assessment;
 
         // Check if author matches
         if (String(assessment.author) !== String((req.user as any)._id)) {
@@ -312,10 +307,6 @@ export const editAssessment: Controller = async (req, res, next) => {
             { new: true },
         );
 
-        // Hide sensitive fields
-        updated.fileURL = undefined;
-        updated.password = undefined;
-
         return res.status(200).json({
             ok: true,
             data: updated,
@@ -325,9 +316,9 @@ export const editAssessment: Controller = async (req, res, next) => {
     }
 };
 
-export const deleteAssessment: Controller = async (req, res, next) => {
+const deleteAssessment: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = req.assessment;
+        const assessment = (req as any).assessment;
 
         // Check if author matches
         if (String(assessment.author) !== String((req.user as any)._id)) {
@@ -352,7 +343,7 @@ export const deleteAssessment: Controller = async (req, res, next) => {
     }
 };
 
-export const getMyAssessments: Controller = async (req, res, next) => {
+const getMyAssessments: RequestHandler = async (req, res, next) => {
     try {
         const { type } = req.params;
 
@@ -391,7 +382,7 @@ export const getMyAssessments: Controller = async (req, res, next) => {
     }
 };
 
-export const getStudentAssessments: Controller = async (req, res, next) => {
+const getStudentAssessments: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -416,3 +407,19 @@ export const getStudentAssessments: Controller = async (req, res, next) => {
         next(error);
     }
 };
+
+const assessmentControllers = {
+    getStudentAssessments,
+    getMyAssessments,
+    deleteAssessment,
+    editAssessment,
+    downloadFile,
+    viewAssessmentFile,
+    downvoteAssessment,
+    upvoteAssessment,
+    createAssessment,
+    getAllAssessments,
+    getOneAssessment,
+};
+
+export default assessmentControllers;

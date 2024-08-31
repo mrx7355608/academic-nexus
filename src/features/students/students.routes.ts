@@ -29,7 +29,7 @@ router.get("/search", defaultLimiter, async (req, res, next) => {
         const students = await StudentModel.find(
             {
                 fullname: {
-                    $regex: new RegExp(req.query.sname),
+                    $regex: new RegExp(req.query.sname as string),
                     $options: "i",
                 },
             },
