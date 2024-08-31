@@ -1,6 +1,7 @@
 export default {
     port: process.env.PORT as unknown,
     dbUrl: process.env.DB_URL as string,
+    testDbUrl: process.env.TEST_DB_URL as string,
     sessionSecret: process.env.SESSIONS_SECRET as string,
     serverUrl: process.env.SERVER_URL as string,
 

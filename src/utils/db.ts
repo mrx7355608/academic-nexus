@@ -1,15 +1,7 @@
 import mongoose from "mongoose";
-import config from "../config/config";
+
 declare global {
     var mongoose: any; // This must be a `var` and not a `let / const`
-}
-
-const MONGODB_URI = config.dbUrl;
-
-if (!MONGODB_URI) {
-    throw new Error(
-        "Please define the MONGODB_URI environment variable inside .env",
-    );
 }
 
 let cached = global.mongoose;
@@ -18,7 +10,7 @@ if (!cached) {
     cached = global.mongoose = { conn: null, promise: null };
 }
 
-export async function connectDB() {
+export async function connectDB(uri: string) {
     console.log("Connecting...");
 
     if (cached.conn) {
@@ -29,11 +21,9 @@ export async function connectDB() {
         const opts = {
             bufferCommands: false,
         };
-        cached.promise = mongoose
-            .connect(MONGODB_URI, opts)
-            .then((mongoose) => {
-                return mongoose;
-            });
+        cached.promise = mongoose.connect(uri, opts).then((mongoose) => {
+            return mongoose;
+        });
     }
     try {
         cached.conn = await cached.promise;
@@ -44,4 +34,8 @@ export async function connectDB() {
     }
 
     return cached.conn;
+}
+
+export async function disconnectDB() {
+    await mongoose.disconnect();
 }

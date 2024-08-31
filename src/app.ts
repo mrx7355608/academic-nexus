@@ -12,7 +12,6 @@ import passport from "passport";
 import compression from "compression";
 import path from "node:path";
 import cookieParser from "cookie-parser";
-import { connectDB } from "./utils/db";
 import mongoose from "mongoose";
 import config from "./config/config";
 
@@ -23,11 +22,6 @@ import assessmentRouter from "./features/assessments/assessments.routes";
 
 export default function createExpressApp() {
     const app = express();
-
-    app.use(async (_req, _res, next) => {
-        await connectDB();
-        next();
-    });
 
     app.use(
         helmet({

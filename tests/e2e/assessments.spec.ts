@@ -1,17 +1,19 @@
 import "dotenv/config";
-import { connectDB, disconnectDB } from "../../src/utils/db.js";
+import { connectDB, disconnectDB } from "../../src/utils/db";
 import supertest from "supertest";
-import createExpressApp from "../../src/app.js";
+import createExpressApp from "../../src/app";
+import TestAgent from "supertest/lib/agent";
+import config from "../../src/config/config";
 
-let request;
+let request: TestAgent;
 let cookie =
     "connect.sid=s%3AUTZcVczCRrIkTQkIazxYWC3__piLaokh.sd5bTdnk3lF9Fg28bOddkYEuTolwHS7cKKTfhN%2BSzuA";
-let user;
+let user: any;
 const id = "669c4d898170a78748d06eaf";
 
 describe("Assessments tests", () => {
     beforeAll(async () => {
-        await connectDB(process.env.DB_URL);
+        await connectDB(config.testDbUrl);
         request = supertest(createExpressApp());
     });
 

@@ -1,13 +1,15 @@
 import "dotenv/config";
-import { connectDB, disconnectDB } from "../../src/utils/db.js";
+import { connectDB, disconnectDB } from "../../src/utils/db";
 import supertest from "supertest";
-import createExpressApp from "../../src/app.js";
+import createExpressApp from "../../src/app";
+import config from "../../src/config/config";
+import TestAgent from "supertest/lib/agent";
 
-let request;
+let request: TestAgent;
 
 describe("Students tests", () => {
     beforeAll(async () => {
-        await connectDB(process.env.DB_URL);
+        await connectDB(config.testDbUrl);
         request = supertest(createExpressApp());
     });
 
