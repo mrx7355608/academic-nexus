@@ -7,6 +7,7 @@ import config from "../../config/config";
 import { RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
 import fileValidators from "./files.validators"
+import FileServices from "./files.services";
 
 cloudinary.config({
     cloud_name: config.cloudinaryCloudName,
@@ -14,7 +15,9 @@ cloudinary.config({
     api_secret: config.cloudinaryApiSecret,
 });
 
-const getAllFiless: RequestHandler = async (req, res, next) => {
+const fileServices = FileServices();
+
+const getAllFiles: RequestHandler = async (req, res, next) => {
     try {
         const aggregateStages: PipelineStage[] = [];
         aggregateStages.push({ $match: { isPublic: true } });
@@ -95,10 +98,7 @@ const getAllFiless: RequestHandler = async (req, res, next) => {
 
 const getOneFile: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = await (req as any).assessment.populate(
-            "author",
-            "fullname profilePicture",
-        );
+        const assessment = fileServices.listOne((req as any).assessment)
         return res.status(200).json({
             ok: true,
             data: assessment,
@@ -111,11 +111,8 @@ const getOneFile: RequestHandler = async (req, res, next) => {
 const createFile: RequestHandler = async (req, res, next) => {
     try {
         const data = req.body;
-
-        // Validate data
-        fileValidators.createValidator(data);
-
-        await FilesModel.create({ ...data, author: req.user });
+        const userId= (req as any).user._id
+        await fileServices.create(data, userId);
 
         return res.status(201).json({
             ok: true,
@@ -126,75 +123,63 @@ const createFile: RequestHandler = async (req, res, next) => {
     }
 };
 
-const upvoteFiles: RequestHandler = async (req, res, next) => {
-    try {
-        const { id } = req.params;
+// const upvoteFiles: RequestHandler = async (req, res, next) => {
+//     try {
+//         const { id } = req.params;
+//
+//         const updated = await FilesModel.findByIdAndUpdate(
+//             id,
+//             {
+//                 $push: { upvotes: (req.user as any)._id },
+//                 $pull: { downvotes: (req.user as any)._id },
+//             },
+//             { new: true },
+//         );
+//
+//         return res.status(200).json({
+//             ok: true,
+//             data: {
+//                 upvotes: updated!.upvotes,
+//                 downvotes: updated!.downvotes,
+//             },
+//         });
+//     } catch (err) {
+//         return next(err);
+//     }
+// };
 
-        const updated = await FilesModel.findByIdAndUpdate(
-            id,
-            {
-                $push: { upvotes: (req.user as any)._id },
-                $pull: { downvotes: (req.user as any)._id },
-            },
-            { new: true },
-        );
-
-        return res.status(200).json({
-            ok: true,
-            data: {
-                upvotes: updated!.upvotes,
-                downvotes: updated!.downvotes,
-            },
-        });
-    } catch (err) {
-        return next(err);
-    }
-};
-
-const downvoteFiles: RequestHandler = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-
-        const updated = await FilesModel.findByIdAndUpdate(
-            id,
-            {
-                $pull: { upvotes: (req.user as any)._id },
-                $push: { downvotes: (req.user as any)._id },
-            },
-            { new: true },
-        );
-
-        return res.status(200).json({
-            ok: true,
-            data: {
-                upvotes: updated!.upvotes,
-                downvotes: updated!.downvotes,
-            },
-        });
-    } catch (err) {
-        return next(err);
-    }
-};
+// const downvoteFiles: RequestHandler = async (req, res, next) => {
+//     try {
+//         const { id } = req.params;
+//
+//         const updated = await FilesModel.findByIdAndUpdate(
+//             id,
+//             {
+//                 $pull: { upvotes: (req.user as any)._id },
+//                 $push: { downvotes: (req.user as any)._id },
+//             },
+//             { new: true },
+//         );
+//
+//         return res.status(200).json({
+//             ok: true,
+//             data: {
+//                 upvotes: updated!.upvotes,
+//                 downvotes: updated!.downvotes,
+//             },
+//         });
+//     } catch (err) {
+//         return next(err);
+//     }
+// };
 
 const editFile: RequestHandler = async (req, res, next) => {
     try {
         const assessment = (req as any).assessment;
-
-        // Check if author matches
-        if (String(assessment.author) !== String((req.user as any)._id)) {
-            return next(new ApiError("You cannot edit this assessment", 403));
-        }
-
-        // Validate new changes
-        fileValidators.editValidator(req.body);
-
-        // Update assessment
-        const updated = await FilesModel.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true },
-        );
-
+        const assessmentId = (req as any).assessment._id;
+        const userId = (req as any).user._id;
+        const changes = req.body;
+        const updated = await fileServices.edit(assessmentId, userId, assessment, changes);
         return res.status(200).json({
             ok: true,
             data: updated,
@@ -302,7 +287,7 @@ const fileControllers = {
     deleteFile,
     editFile,
     createFile,
-    getAllFiless,
+    getAllFiles,
     getOneFile,
 };
 
