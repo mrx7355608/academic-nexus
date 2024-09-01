@@ -1,4 +1,4 @@
-export interface IAssessmentInput {
+export interface IFileInput {
     title: string;
     fileURL: string;
     fileExtension: string;

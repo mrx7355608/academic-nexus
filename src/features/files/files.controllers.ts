@@ -1,17 +1,12 @@
-import AssessmentModel from "./assessments.model";
+import FilesModel from "./files.model";
 import validator from "validator";
-import bcrypt from "bcryptjs";
 import ApiError from "../../utils/ApiError";
-import https from "https";
-import {
-    createAssessmentValidator,
-    editAssessmentValidator,
-} from "./assessments.validators";
 import { v2 as cloudinary } from "cloudinary";
 import StudentModel from "../students/students.model";
 import config from "../../config/config";
 import { RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
+import fileValidators from "./files.validators"
 
 cloudinary.config({
     cloud_name: config.cloudinaryCloudName,
@@ -19,7 +14,7 @@ cloudinary.config({
     api_secret: config.cloudinaryApiSecret,
 });
 
-const getAllAssessments: RequestHandler = async (req, res, next) => {
+const getAllFiless: RequestHandler = async (req, res, next) => {
     try {
         const aggregateStages: PipelineStage[] = [];
         aggregateStages.push({ $match: { isPublic: true } });
@@ -83,8 +78,8 @@ const getAllAssessments: RequestHandler = async (req, res, next) => {
         });
 
         // Fetch data from database
-        const assessments = await AssessmentModel.aggregate(aggregateStages);
-        await AssessmentModel.populate(assessments, {
+        const assessments = await FilesModel.aggregate(aggregateStages);
+        await FilesModel.populate(assessments, {
             path: "author",
             select: "fullname",
         });
@@ -98,7 +93,7 @@ const getAllAssessments: RequestHandler = async (req, res, next) => {
     }
 };
 
-const getOneAssessment: RequestHandler = async (req, res, next) => {
+const getOneFile: RequestHandler = async (req, res, next) => {
     try {
         const assessment = await (req as any).assessment.populate(
             "author",
@@ -113,14 +108,14 @@ const getOneAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-const createAssessment: RequestHandler = async (req, res, next) => {
+const createFile: RequestHandler = async (req, res, next) => {
     try {
         const data = req.body;
 
         // Validate data
-        createAssessmentValidator(data);
+        fileValidators.createValidator(data);
 
-        await AssessmentModel.create({ ...data, author: req.user });
+        await FilesModel.create({ ...data, author: req.user });
 
         return res.status(201).json({
             ok: true,
@@ -131,11 +126,11 @@ const createAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-const upvoteAssessment: RequestHandler = async (req, res, next) => {
+const upvoteFiles: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const updated = await AssessmentModel.findByIdAndUpdate(
+        const updated = await FilesModel.findByIdAndUpdate(
             id,
             {
                 $push: { upvotes: (req.user as any)._id },
@@ -156,11 +151,11 @@ const upvoteAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-const downvoteAssessment: RequestHandler = async (req, res, next) => {
+const downvoteFiles: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        const updated = await AssessmentModel.findByIdAndUpdate(
+        const updated = await FilesModel.findByIdAndUpdate(
             id,
             {
                 $pull: { upvotes: (req.user as any)._id },
@@ -181,110 +176,7 @@ const downvoteAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-type IContent = {
-    pdf: string;
-    doc: string;
-    docx: string;
-    png: string;
-    jpg: string;
-    jpeg: string;
-    [key: string]: string;
-};
-const viewAssessmentFile: RequestHandler = async (req, res, next) => {
-    try {
-        const contentTypeMap: IContent = {
-            pdf: "application/pdf",
-            doc: "application/msword",
-            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            png: "image/png",
-            jpg: "image/jpeg",
-            jpeg: "image/jpeg",
-        };
-
-        // Validate assessment id
-        if (!validator.isMongoId(req.params.id)) {
-            return next(new ApiError("Invalid assessment id", 400));
-        }
-
-        // Check if assessment exists
-        const assessment = await AssessmentModel.findById(
-            req.params.id,
-            "+fileURL",
-        );
-
-        if (!assessment) {
-            return next(new ApiError("Assessment not found", 404));
-        }
-
-        // Send resource back to frontend
-        https.get(assessment.fileURL, (stream) => {
-            res.setHeader(
-                "Content-Type",
-                contentTypeMap[assessment.fileExtension],
-            );
-            stream.pipe(res);
-
-            // TODO: handle https errors during stream
-        });
-    } catch (err) {
-        return next(err);
-    }
-};
-
-const downloadFile: RequestHandler = async (req, res, next) => {
-    try {
-        const contentTypeMap: IContent = {
-            pdf: "application/pdf",
-            doc: "application/msword",
-            docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            png: "image/png",
-            jpg: "image/jpeg",
-            jpeg: "image/jpeg",
-        };
-
-        const { password } = req.body;
-
-        // Validate assessment id
-        if (!validator.isMongoId(req.params.id)) {
-            return next(new ApiError("Invalid assessment id", 400));
-        }
-
-        // Check if assessment exists
-        const assessment = await AssessmentModel.findById(
-            req.params.id,
-            "+password +fileURL",
-        );
-        if (!assessment) {
-            return next(new ApiError("Assessment not found", 404));
-        }
-
-        // Verify password
-        const isValid = await bcrypt.compare(password, assessment.password);
-        if (!isValid) {
-            return next(new ApiError("Incorrect password", 403));
-        }
-
-        // Stream file back to frontend
-        https.get(assessment.fileURL, (stream) => {
-            res.setHeader(
-                "Content-Disposition",
-                `attachment; filename="${assessment.title}.pdf"`,
-            );
-            res.setHeader(
-                "Content-Type",
-                contentTypeMap[assessment.fileExtension],
-            );
-
-            stream.pipe(res);
-
-            // TODO: handle https errors during stream
-        });
-    } catch (err) {
-        return next(err);
-    }
-};
-
-const editAssessment: RequestHandler = async (req, res, next) => {
+const editFile: RequestHandler = async (req, res, next) => {
     try {
         const assessment = (req as any).assessment;
 
@@ -294,10 +186,10 @@ const editAssessment: RequestHandler = async (req, res, next) => {
         }
 
         // Validate new changes
-        editAssessmentValidator(req.body);
+        fileValidators.editValidator(req.body);
 
         // Update assessment
-        const updated = await AssessmentModel.findByIdAndUpdate(
+        const updated = await FilesModel.findByIdAndUpdate(
             req.params.id,
             req.body,
             { new: true },
@@ -312,7 +204,7 @@ const editAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-const deleteAssessment: RequestHandler = async (req, res, next) => {
+const deleteFile: RequestHandler = async (req, res, next) => {
     try {
         const assessment = (req as any).assessment;
 
@@ -322,7 +214,7 @@ const deleteAssessment: RequestHandler = async (req, res, next) => {
         }
 
         // Delete assessment
-        await AssessmentModel.findByIdAndDelete(req.params.id);
+        await FilesModel.findByIdAndDelete(req.params.id);
 
         // Also delete file from cloudnary
         cloudinary.api
@@ -339,7 +231,7 @@ const deleteAssessment: RequestHandler = async (req, res, next) => {
     }
 };
 
-const getMyAssessments: RequestHandler = async (req, res, next) => {
+const getMyFiles: RequestHandler = async (req, res, next) => {
     try {
         const { type } = req.params;
 
@@ -365,7 +257,7 @@ const getMyAssessments: RequestHandler = async (req, res, next) => {
             });
         }
 
-        const assessments = await AssessmentModel.find(queryFilter).populate(
+        const assessments = await FilesModel.find(queryFilter).populate(
             "author",
             "fullname",
         );
@@ -378,7 +270,7 @@ const getMyAssessments: RequestHandler = async (req, res, next) => {
     }
 };
 
-const getStudentAssessments: RequestHandler = async (req, res, next) => {
+const getStudentFiles: RequestHandler = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -391,7 +283,7 @@ const getStudentAssessments: RequestHandler = async (req, res, next) => {
             return next(new ApiError("Student not found", 404));
         }
 
-        const assessments = await AssessmentModel.find({ author: id }).populate(
+        const assessments = await FilesModel.find({ author: id }).populate(
             "author",
             "fullname",
         );
@@ -404,18 +296,14 @@ const getStudentAssessments: RequestHandler = async (req, res, next) => {
     }
 };
 
-const assessmentControllers = {
-    getStudentAssessments,
-    getMyAssessments,
-    deleteAssessment,
-    editAssessment,
-    downloadFile,
-    viewAssessmentFile,
-    downvoteAssessment,
-    upvoteAssessment,
-    createAssessment,
-    getAllAssessments,
-    getOneAssessment,
+const fileControllers = {
+    getStudentFiles,
+    getMyFiles,
+    deleteFile,
+    editFile,
+    createFile,
+    getAllFiless,
+    getOneFile,
 };
 
-export default assessmentControllers;
+export default fileControllers;
