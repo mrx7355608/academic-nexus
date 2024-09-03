@@ -18,7 +18,7 @@ import config from "./config/config";
 // ROUTERS
 import authRouter from "./features/auth/auth.routes";
 import studentRouter from "./features/students/students.routes";
-import assessmentRouter from "./features/assessments/assessments.routes";
+import filesRouter from "./features/files/files.routes";
 
 export default function createExpressApp() {
     const app = express();
@@ -95,7 +95,7 @@ export default function createExpressApp() {
     // ROUTES
     app.use("/api/auth", authRouter);
     app.use("/api/students", studentRouter);
-    app.use("/api/assessments", assessmentRouter);
+    app.use("/api/assessments", filesRouter);
 
     // SERVE REACT APP
     app.get("/*", (_req, res) => {
