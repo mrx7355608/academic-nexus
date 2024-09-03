@@ -1,7 +1,4 @@
 import FilesModel from "./files.model";
-import validator from "validator";
-import ApiError from "../../utils/ApiError";
-import StudentModel from "../students/students.model";
 import { RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
 import FileServices from "./files.services";
@@ -202,7 +199,7 @@ const getMyFiles: RequestHandler = async (req, res, next) => {
             data: files,
         });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 
@@ -215,7 +212,7 @@ const getStudentFiles: RequestHandler = async (req, res, next) => {
             data: files,
         });
     } catch (error) {
-        next(error);
+        return next(error);
     }
 };
 

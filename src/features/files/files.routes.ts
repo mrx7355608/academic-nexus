@@ -1,61 +1,24 @@
 import { Router } from "express";
 import validateAssessment from "../../middlewares/validateAssessment";
 import isAuth from "../../middlewares/isAuth";
-import assessmentControllers from "./assessments.controllers";
-import { defaultLimiter, passowrdLimiter } from "../../utils/rateLimiters";
+import fileControllers from "./files.controllers";
+import { defaultLimiter } from "../../utils/rateLimiters";
 
 const router = Router();
 
 // GET ALL ASSESSMENTS
-router.get("/", defaultLimiter, assessmentControllers.getAllAssessments);
+router.get("/", defaultLimiter, fileControllers.getAllFiles);
 
 // GET ONE ASSESSMENT BY ID
 router.get(
     "/:id",
     defaultLimiter,
     validateAssessment,
-    assessmentControllers.getOneAssessment,
+    fileControllers.getOneFile,
 );
 
 // CREATE NEW ASSESSMENTS
-router.post(
-    "/",
-    defaultLimiter,
-    isAuth,
-    assessmentControllers.createAssessment,
-);
-
-// UPVOTE ASSESSMENT
-router.post(
-    "/:id/upvote",
-    defaultLimiter,
-    isAuth,
-    validateAssessment,
-    assessmentControllers.upvoteAssessment,
-);
-
-// DOWNVOTE ASSESSMENTS
-router.post(
-    "/:id/downvote",
-    defaultLimiter,
-    isAuth,
-    validateAssessment,
-    assessmentControllers.downvoteAssessment,
-);
-
-// VIEW ASSESSMENT FILE
-router.get(
-    "/view-assessment/:id",
-    defaultLimiter,
-    assessmentControllers.viewAssessmentFile,
-);
-
-// DOWNLOAD ASSESSMENT FILE
-router.post(
-    "/download-file/:id",
-    passowrdLimiter,
-    assessmentControllers.downloadFile,
-);
+router.post("/", defaultLimiter, isAuth, fileControllers.createFile);
 
 // EDIT ASSESSMENT
 router.patch(
@@ -63,7 +26,7 @@ router.patch(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    assessmentControllers.editAssessment,
+    fileControllers.editFile,
 );
 
 // DELETE ASSESSMENT
@@ -72,22 +35,31 @@ router.delete(
     defaultLimiter,
     isAuth,
     validateAssessment,
-    assessmentControllers.deleteAssessment,
+    fileControllers.deleteFile,
 );
 
 // GET ASSESSMETS BY TYPE
-router.get(
-    "/my/:type",
-    defaultLimiter,
-    isAuth,
-    assessmentControllers.getMyAssessments,
-);
+router.get("/my/:type", defaultLimiter, isAuth, fileControllers.getMyFiles);
 
 // GET ASSESSMENTS OF A STUDENT
-router.get(
-    "/student/:id",
-    defaultLimiter,
-    assessmentControllers.getStudentAssessments,
-);
+router.get("/student/:id", defaultLimiter, fileControllers.getStudentFiles);
 
 export default router;
+
+// UPVOTE ASSESSMENT
+// router.post(
+//     "/:id/upvote",
+//     defaultLimiter,
+//     isAuth,
+//     validateAssessment,
+//     fileControllers.upvoteAssessment,
+// );
+//
+// // DOWNVOTE ASSESSMENTS
+// router.post(
+//     "/:id/downvote",
+//     defaultLimiter,
+//     isAuth,
+//     validateAssessment,
+//     fileControllers.downvoteAssessment,
+// );
