@@ -2,16 +2,9 @@ import FilesModel from "./files.model";
 import { IFileInput } from "./files.type";
 import fileValidators from "./files.validators";
 import ApiError from "../../utils/ApiError";
-import config from "../../config/config";
-import { v2 as cloudinary } from "cloudinary";
 import validator from "validator";
 import StudentModel from "../students/students.model";
-
-cloudinary.config({
-    cloud_name: config.cloudinaryCloudName,
-    api_key: config.cloudinaryApiKey,
-    api_secret: config.cloudinaryApiSecret,
-});
+import { deleteResource } from "../../utils/cloudinaryService";
 
 export default function FileServices() {
     const listAll = async () => {};
@@ -54,17 +47,11 @@ export default function FileServices() {
             throw new ApiError("You cannot delete this assessment", 403);
         }
 
-        // Delete assessment
+        // Delete assessment from database
         await FilesModel.findByIdAndDelete(assessment._id);
 
         // Also delete file from cloudnary
-        cloudinary.api
-            .delete_resources([assessment.publicId], {
-                type: "upload",
-                resource_type:
-                    assessment.fileExtension === "docx" ? "raw" : "image",
-            })
-            .then(console.log);
+        deleteResource(assessment.publicId, assessment.fileExtension);
     };
 
     const listMyFiles = async (type: string, subject: string | undefined) => {
