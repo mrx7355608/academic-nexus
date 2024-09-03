@@ -17,13 +17,6 @@ export default function passportSetup() {
                 profile: any,
                 done: any,
             ) {
-                if (!profile.emails[0].value.endsWith("@iqra.edu.pk")) {
-                    return done(null, false, {
-                        message:
-                            "Invalid email domain. Please use your IU email to login",
-                    });
-                }
-
                 // Check if user has previously logged in with google
                 const student = await StudentModel.findOne({
                     googleId: profile.id,
