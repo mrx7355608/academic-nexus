@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const assessmentSchema = new mongoose.Schema(
+const fileSchema = new mongoose.Schema(
     {
         title: {
             type: String,
@@ -23,10 +23,6 @@ const assessmentSchema = new mongoose.Schema(
             required: true,
         },
         subject: {
-            type: String,
-            required: true,
-        },
-        type: {
             type: String,
             required: true,
         },
@@ -57,5 +53,5 @@ const assessmentSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
-const AssessmentModel = mongoose.model("Assessment", assessmentSchema);
-export default AssessmentModel;
+const FileModel = mongoose.model("File", fileSchema);
+export default FileModel;

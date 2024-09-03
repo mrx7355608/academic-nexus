@@ -1,6 +1,6 @@
 import validator from "validator";
 import ApiError from "../utils/ApiError";
-import AssessmentModel from "../features/assessments/assessments.model";
+import FileModel from "../features/files/files.model";
 import { Request, Response, NextFunction } from "express";
 
 export default async function validateAssessment(
@@ -15,7 +15,7 @@ export default async function validateAssessment(
         }
 
         // Check if assessment exists
-        const assessment = await AssessmentModel.findById(req.params.id);
+        const assessment = await FileModel.findById(req.params.id);
         if (!assessment) {
             return next(new ApiError("Assessment not found", 404));
         }
