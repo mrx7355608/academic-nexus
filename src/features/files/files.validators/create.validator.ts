@@ -70,6 +70,7 @@ export default function validateCreateFileData() {
                 "any.only": "The file extension is not allowed",
                 "string.empty": "File extension cannot be empty",
                 "string.base": "Invalid file extension",
+                "any.required": "File extension is required",
             }),
     });
 

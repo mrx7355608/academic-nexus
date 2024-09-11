@@ -3,7 +3,6 @@ export interface IFileInput {
     fileURL: string;
     fileExtension: string;
     subject: string;
-    type: string;
     isPublic: boolean;
-    publicId?: string;
+    publicId: string;
 }
