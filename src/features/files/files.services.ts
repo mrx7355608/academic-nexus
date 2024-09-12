@@ -1,5 +1,5 @@
 import FilesModel from "./files.model";
-import { IFileInput } from "./files.type";
+import { IFile } from "./files.type";
 import fileValidators from "./files.validators";
 import ApiError from "../../utils/ApiError";
 import validator from "validator";
@@ -13,16 +13,12 @@ export default function FileServices() {
         return await assessment.populate("author", "fullname profilePicture");
     };
 
-    const create = async (data: IFileInput, userId: string): Promise<void> => {
+    const create = async (data: IFile, userId: string): Promise<void> => {
         fileValidators.createValidator(data);
         await FilesModel.create({ ...data, author: userId });
     };
 
-    const edit = async (
-        assessment: any,
-        userId: string,
-        changes: IFileInput,
-    ) => {
+    const edit = async (assessment: any, userId: string, changes: IFile) => {
         // Check if author matches
         if (String(assessment.author) !== userId) {
             throw new ApiError("You cannot edit this assessment", 403);

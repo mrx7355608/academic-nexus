@@ -1,5 +1,5 @@
 import joi from "joi";
-import { IFileInput } from "../files.type";
+import { IFile } from "../files.type";
 import ApiError from "../../../utils/ApiError";
 import validator from "validator";
 
@@ -66,7 +66,7 @@ export default function validateEditFileData() {
             }),
     });
 
-    return (data: Partial<IFileInput>) => {
+    return (data: Partial<IFile>) => {
         const { error } = editValidationSchema.validate(data);
         if (error) {
             throw new ApiError(error.message, 400);

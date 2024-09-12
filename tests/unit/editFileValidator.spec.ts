@@ -1,7 +1,7 @@
-import { IFileInput } from "../../src/features/files/files.type";
+import { IFile } from "../../src/features/files/files.type";
 import validators from "../../src/features/files/files.validators";
 
-const data: Partial<IFileInput> = {
+const data: Partial<IFile> = {
     fileExtension: "ppt",
     fileURL: "https://example.com/switch.ppt",
     subject: "Data Communication & Computer Networks",

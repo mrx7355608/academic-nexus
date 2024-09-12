@@ -1,7 +1,7 @@
 import joi from "joi";
 import validator from "validator";
 import ApiError from "../../../utils/ApiError";
-import { IFileInput } from "../files.type";
+import { IFile } from "../files.type";
 
 export default function validateCreateFileData() {
     const _validSubjects = [
@@ -78,7 +78,7 @@ export default function validateCreateFileData() {
             }),
     });
 
-    return (data: IFileInput) => {
+    return (data: IFile) => {
         const { error } = _createFileSchema.validate(data);
         if (error) {
             throw new ApiError(error.message, 400);

@@ -1,4 +1,4 @@
-export interface IFileInput {
+export interface IFile {
     title: string;
     fileURL: string;
     fileExtension: string;

@@ -1,7 +1,7 @@
-import { IFileInput } from "../../src/features/files/files.type";
+import { IFile } from "../../src/features/files/files.type";
 import validators from "../../src/features/files/files.validators";
 
-const data: IFileInput = {
+const data: IFile = {
     title: "Switch (DCCN) - Miss Mahrose",
     fileExtension: "ppt",
     fileURL: "https://example.com/switch.ppt",
