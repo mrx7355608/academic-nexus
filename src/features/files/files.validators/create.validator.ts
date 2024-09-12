@@ -57,10 +57,14 @@ export default function validateCreateFileData() {
                 "any.only": "Unknown subject",
                 "string.empty": "subject cannot be empty",
                 "string.base": "Invalid subject",
-                "any.required": "Please select a subject",
+                "any.required": "Subject is required",
             }),
 
-        isPublic: joi.boolean().required(),
+        isPublic: joi.boolean().valid(true, false).required().messages({
+            "any.required": "File status is required",
+            "boolean.base": "File status should be public or private",
+            "any.only": "File status should be public or private",
+        }),
 
         fileExtension: joi
             .string()

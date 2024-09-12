@@ -11,6 +11,11 @@ const data: IFileInput = {
 };
 
 describe("Create file validation tests", () => {
+    it("should not allow un-necessary fields", () => {
+        expect(() =>
+            validators.createValidator({ ...data, author: "some-user" } as any),
+        ).toThrow('"author" is not allowed');
+    });
     it("should validate file title", () => {
         expect(() =>
             validators.createValidator({ ...data, title: "" }),
@@ -53,6 +58,25 @@ describe("Create file validation tests", () => {
             "File extension is required",
         );
     });
-    it.todo("should validate file subject");
-    it.todo("should validate file status");
+    it("should validate file subject", () => {
+        const copy = { ...data };
+        delete (copy as any).subject;
+        expect(() => validators.createValidator(copy)).toThrow(
+            "Subject is required",
+        );
+        expect(() =>
+            validators.createValidator({ ...data, subject: null } as any),
+        ).toThrow("Unknown subject");
+        expect(() =>
+            validators.createValidator({ ...data, subject: "" }),
+        ).toThrow("Unknown subject");
+        expect(() =>
+            validators.createValidator({ ...data, subject: "jungle-king" }),
+        ).toThrow("Unknown subject");
+    });
+    it("should validate file status", () => {
+        expect(() =>
+            validators.createValidator({ ...data, isPublic: null } as any),
+        ).toThrow("File status should be public or private");
+    });
 });
