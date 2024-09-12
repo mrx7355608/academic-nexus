@@ -49,7 +49,11 @@ export default function validateEditFileData() {
             "string.base": "Invalid title",
         }),
 
-        isPublic: joi.boolean().required(),
+        isPublic: joi.boolean().required().messages({
+            "any.required": "File status is required",
+            "boolean.base": "File status should be public or private",
+            "any.only": "File status should be public or private",
+        }),
 
         subject: joi
             .string()
@@ -62,7 +66,7 @@ export default function validateEditFileData() {
             }),
     });
 
-    return (data: IFileInput) => {
+    return (data: Partial<IFileInput>) => {
         const { error } = editValidationSchema.validate(data);
         if (error) {
             throw new ApiError(error.message, 400);
