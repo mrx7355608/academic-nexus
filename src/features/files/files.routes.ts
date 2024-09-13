@@ -21,22 +21,10 @@ router.get(
 router.post("/", defaultLimiter, isAuth, fileControllers.createFile);
 
 // EDIT ASSESSMENT
-router.patch(
-    "/:id",
-    defaultLimiter,
-    isAuth,
-    validateAssessment,
-    fileControllers.editFile,
-);
+router.patch("/:id", defaultLimiter, isAuth, fileControllers.editFile);
 
 // DELETE ASSESSMENT
-router.delete(
-    "/:id",
-    defaultLimiter,
-    isAuth,
-    validateAssessment,
-    fileControllers.deleteFile,
-);
+router.delete("/:id", defaultLimiter, isAuth, fileControllers.deleteFile);
 
 export default router;
 

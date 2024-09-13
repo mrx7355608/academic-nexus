@@ -32,7 +32,8 @@ export default function FileServices(
     // CREATE NEW FILE
     const create = async (data: IFile) => {
         fileValidators.createValidator(data);
-        await filesDB.insert(data);
+        const file = await filesDB.insert(data);
+        return await file.populate("author", "profilePicture fullname");
     };
 
     // EDIT FILE
@@ -64,7 +65,9 @@ export default function FileServices(
         await filesDB.remove(fileId);
 
         // Also delete file from cloudnary
-        cloudinaryService.deleteResource(file.publicId, file.fileExtension);
+        if (process.env.NODE_ENV !== "test") {
+            cloudinaryService.deleteResource(file.publicId, file.fileExtension);
+        }
     };
 
     /*

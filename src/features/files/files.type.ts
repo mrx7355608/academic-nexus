@@ -10,7 +10,10 @@ export interface IFile {
     author: string | mongoose.Types.ObjectId;
 }
 
-export interface IFileDocument extends Document, IFile {}
+export interface IFileDocument extends Document, IFile {
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export interface IFileDB {
     findAll: (skip: number) => Promise<IFileDocument[]>;

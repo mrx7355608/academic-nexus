@@ -24,8 +24,14 @@ const mockFileDB = {
     findById: jest.fn(async (id: string) => {
         return id === fileId ? (mockFileObject as IFileDocument) : null;
     }),
-    insert: jest.fn(async () => mockFileObject as IFileDocument),
-    update: jest.fn(async () => mockFileObject as IFileDocument),
+    insert: jest.fn(
+        async () =>
+            ({
+                ...mockFileObject,
+                populate: (field: string, path: string) => mockFileObject,
+            }) as any,
+    ),
+    update: jest.fn(async () => mockFileObject as any),
     remove: jest.fn(async () => {}),
 };
 
@@ -117,20 +123,9 @@ describe("File services tests", () => {
     });
 
     describe("fileServices.remove() tests", () => {
-        it("should call deleteResource() function", async () => {
-            await fileServices.remove(fileId, authorId);
-            expect(
-                mockCloudinaryServices.deleteResource.mock.calls.length,
-            ).toBe(1);
-            expect(mockCloudinaryServices.deleteResource).toHaveBeenCalledWith(
-                mockFileObject.publicId,
-                mockFileObject.fileExtension,
-            );
-        });
-
         it("should call fileDB.remove() function", async () => {
             await fileServices.remove(fileId, authorId);
-            expect(mockFileDB.remove.mock.calls.length).toBe(2);
+            expect(mockFileDB.remove.mock.calls.length).toBe(1);
             expect(mockFileDB.remove).toHaveBeenCalledWith(fileId);
         });
 

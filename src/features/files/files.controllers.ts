@@ -4,6 +4,7 @@ import { PipelineStage } from "mongoose";
 import FileServices from "./files.services";
 import FilesDB from "./files.data";
 import CloudinaryService from "../../utils/cloudinaryService";
+import ResponseFileDTO from "./files.dto/ResponseFileDTO";
 
 const filesDB = FilesDB();
 const cloudinaryServices = CloudinaryService();
@@ -103,12 +104,13 @@ const getOneFile: RequestHandler = async (req, res, next) => {
 
 const createFile: RequestHandler = async (req, res, next) => {
     try {
-        const data = { ...req.body, author: (req as any).user._id };
-        await fileServices.create(data);
+        const authorId = String((req as any).user._id);
+        const data = { ...req.body, author: authorId };
+        const file = await fileServices.create(data);
 
         return res.status(201).json({
             ok: true,
-            data: null,
+            data: new ResponseFileDTO(file),
         });
     } catch (err) {
         return next(err);
@@ -118,14 +120,18 @@ const createFile: RequestHandler = async (req, res, next) => {
 const editFile: RequestHandler = async (req, res, next) => {
     try {
         const fileId = req.params.id;
-        const userId = (req as any).user._id;
+        const userId = String((req as any).user._id);
         const changes = req.body;
 
         const updated = await fileServices.edit(fileId, userId, changes);
+        const file = await updated.populate(
+            "author",
+            "fullname profilePicture",
+        );
 
         return res.status(200).json({
             ok: true,
-            data: updated,
+            data: new ResponseFileDTO(file),
         });
     } catch (err) {
         return next(err);
@@ -135,7 +141,7 @@ const editFile: RequestHandler = async (req, res, next) => {
 const deleteFile: RequestHandler = async (req, res, next) => {
     try {
         const fileId = req.params.id;
-        const userId = (req.user as any)._id;
+        const userId = String((req.user as any)._id);
         await fileServices.remove(fileId, userId);
         return res.status(204).end();
     } catch (err) {

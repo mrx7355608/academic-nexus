@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { IFile } from "./files.type";
+import { IFileDocument } from "./files.type";
 
-const fileSchema = new mongoose.Schema<IFile>(
+const fileSchema = new mongoose.Schema<IFileDocument>(
     {
         title: {
             type: String,
@@ -36,5 +36,5 @@ const fileSchema = new mongoose.Schema<IFile>(
     { timestamps: true },
 );
 
-const FileModel = mongoose.model("File", fileSchema);
+const FileModel = mongoose.model<IFileDocument>("File", fileSchema);
 export default FileModel;
