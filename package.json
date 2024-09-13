@@ -6,7 +6,9 @@
     "scripts": {
         "start": "node api/index.js",
         "dev": "ts-node-dev --pretty --respawn api/index.ts",
-        "test": "jest",
+        "test-app": "jest",
+        "test-unit": "jest ./tests/unit/*.spec.ts",
+        "test-e2e": "jest ./tests/e2e/*.e2e.spec.ts",
         "test-watch": "jest --watch"
     },
     "dependencies": {

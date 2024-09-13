@@ -32,10 +32,13 @@ jobs:
             - name: Install Dependencies
               run: yarn install
 
-            - name: Set environment variables
-              run: echo DB_URL=${{ secrets.DB_URL }} >> .env
+            - name: Run unit tests
+              run: yarn test-unit
 
-            - name: Run tests
-              run: yarn test
+            - name: Run integration tests
+              run: yarn test-e2e
               env:
                   DB_URL: ${{secrets.DB_URL}}
+                  GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
+                  GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+                  NODE_ENV: "test"
