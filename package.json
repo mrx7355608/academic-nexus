@@ -6,7 +6,8 @@
     "scripts": {
         "start": "node api/index.js",
         "dev": "ts-node-dev --pretty --respawn api/index.ts",
-        "test": "jest --watch"
+        "test": "jest",
+        "test-watch": "jest --watch"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
