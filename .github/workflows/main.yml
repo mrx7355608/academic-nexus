@@ -41,4 +41,5 @@ jobs:
                   DB_URL: ${{secrets.DB_URL}}
                   GOOGLE_CLIENT_ID: ${{secrets.GOOGLE_CLIENT_ID}}
                   GOOGLE_CLIENT_SECRET: ${{secrets.GOOGLE_CLIENT_SECRET}}
+                  SESSIONS_SECRET: ${{secrets.SESSIONS_SECRET}}
                   NODE_ENV: "test"
