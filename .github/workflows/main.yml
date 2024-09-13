@@ -33,8 +33,9 @@ jobs:
               run: yarn install
 
             - name: Set environment variables
-              run: |
-                  echo DB_URL=${{ secrets.DB_URL }} >> .env
+              run: echo DB_URL=${{ secrets.DB_URL }} >> .env
 
             - name: Run tests
               run: yarn test
+              env:
+                  DB_URL: ${{secrets.DB_URL}}
