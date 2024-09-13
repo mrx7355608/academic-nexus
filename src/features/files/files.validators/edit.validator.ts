@@ -49,7 +49,7 @@ export default function validateEditFileData() {
             "string.base": "Invalid title",
         }),
 
-        isPublic: joi.boolean().required().messages({
+        isPublic: joi.boolean().messages({
             "any.required": "File status is required",
             "boolean.base": "File status should be public or private",
             "any.only": "File status should be public or private",

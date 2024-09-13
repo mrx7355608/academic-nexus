@@ -6,6 +6,7 @@ export default function FilesDB(): IFileDB {
         const files = await FileModel.find({}).skip(skip).limit(15);
         return files;
     };
+
     const findOne = async (title: string) => {
         return await FileModel.findOne({
             title: {
@@ -15,9 +16,15 @@ export default function FilesDB(): IFileDB {
         });
     };
 
-    const findById = async (id: string) => await FileModel.findById(id);
+    const findById = async (id: string) => {
+        const file = await FileModel.findById(id);
+        return file;
+    };
 
-    const insert = async (data: IFile) => await FileModel.create(data);
+    const insert = async (data: IFile) => {
+        const newFile = await FileModel.create(data);
+        return newFile;
+    };
 
     const update = async (id: string, changes: Partial<IFile>) => {
         const updated = await FileModel.findByIdAndUpdate(id, changes, {

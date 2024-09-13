@@ -66,6 +66,12 @@ export default function validateCreateFileData() {
             "any.only": "File status should be public or private",
         }),
 
+        author: joi.string().required().messages({
+            "any.required": "File must have an author",
+            "string.base": "Invalid author id",
+            "string.empty": "Author id cannot be empty",
+        }),
+
         fileExtension: joi
             .string()
             .required()
