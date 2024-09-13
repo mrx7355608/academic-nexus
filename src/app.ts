@@ -95,7 +95,7 @@ export default function createExpressApp() {
     // ROUTES
     app.use("/api/auth", authRouter);
     app.use("/api/students", studentRouter);
-    app.use("/api/assessments", filesRouter);
+    app.use("/api/files", filesRouter);
 
     // SERVE REACT APP
     app.get("/*", (_req, res) => {

@@ -38,12 +38,6 @@ router.delete(
     fileControllers.deleteFile,
 );
 
-// GET ASSESSMETS BY TYPE
-router.get("/my/:type", defaultLimiter, isAuth, fileControllers.getMyFiles);
-
-// GET ASSESSMENTS OF A STUDENT
-router.get("/student/:id", defaultLimiter, fileControllers.getStudentFiles);
-
 export default router;
 
 // UPVOTE ASSESSMENT
