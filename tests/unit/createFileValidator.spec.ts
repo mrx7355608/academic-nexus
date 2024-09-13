@@ -8,13 +8,14 @@ const data: IFile = {
     subject: "Data Communication & Computer Networks",
     isPublic: false,
     publicId: "z2e2-1x12-412c412xe12e-0xe",
+    author: "authorId",
 };
 
 describe("Create file validation tests", () => {
     it("should not allow un-necessary fields", () => {
         expect(() =>
-            validators.createValidator({ ...data, author: "some-user" } as any),
-        ).toThrow('"author" is not allowed');
+            validators.createValidator({ ...data, lol: "some-user" } as any),
+        ).toThrow('"lol" is not allowed');
     });
     it("should validate file title", () => {
         expect(() =>

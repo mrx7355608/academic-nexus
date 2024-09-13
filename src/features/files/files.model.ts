@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
+import { IFile } from "./files.type";
 
-const fileSchema = new mongoose.Schema(
+const fileSchema = new mongoose.Schema<IFile>(
     {
         title: {
             type: String,
@@ -30,24 +31,6 @@ const fileSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Student",
             required: true,
-        },
-        upvotes: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Student",
-                },
-            ],
-            default: [],
-        },
-        downvotes: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Student",
-                },
-            ],
-            default: [],
         },
     },
     { timestamps: true },

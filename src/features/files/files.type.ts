@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface IFile {
     title: string;
@@ -7,7 +7,7 @@ export interface IFile {
     subject: string;
     isPublic: boolean;
     publicId: string;
-    author: string;
+    author: string | mongoose.Types.ObjectId;
 }
 
 export interface IFileDocument extends Document, IFile {}
