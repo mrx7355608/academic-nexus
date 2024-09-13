@@ -115,4 +115,31 @@ describe("File services tests", () => {
             expect(file).toStrictEqual(updatedData);
         });
     });
+
+    describe("fileServices.remove() tests", () => {
+        it("should call deleteResource() function", async () => {
+            await fileServices.remove(fileId, authorId);
+            expect(
+                mockCloudinaryServices.deleteResource.mock.calls.length,
+            ).toBe(1);
+            expect(mockCloudinaryServices.deleteResource).toHaveBeenCalledWith(
+                mockFileObject.publicId,
+                mockFileObject.fileExtension,
+            );
+        });
+
+        it("should call fileDB.remove() function", async () => {
+            await fileServices.remove(fileId, authorId);
+            expect(mockFileDB.remove.mock.calls.length).toBe(2);
+            expect(mockFileDB.remove).toHaveBeenCalledWith(fileId);
+        });
+
+        it("should throw error if author does not match", async () => {
+            try {
+                await fileServices.remove(fileId, "anotherAuthorId");
+            } catch (err: any) {
+                expect(err.message).toBe("You cannot delete this file");
+            }
+        });
+    });
 });

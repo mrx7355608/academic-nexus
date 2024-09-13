@@ -1,5 +1,5 @@
 import ApiError from "../../utils/ApiError";
-import { IFile, IFileDB, IFileDocument } from "./files.type";
+import { IFile, IFileDB } from "./files.type";
 import fileValidators from "./files.validators";
 import validator from "validator";
 
@@ -52,20 +52,19 @@ export default function FileServices(
     };
 
     // REMOVE FILE
-    const remove = async (assessment: IFileDocument, userId: string) => {
+    const remove = async (fileId: string, userId: string) => {
+        const file = await validateFile(fileId);
+
         // Check if author matches
-        if (String(assessment.author) !== userId) {
-            throw new ApiError("You cannot delete this assessment", 403);
+        if (String(file.author) !== userId) {
+            throw new ApiError("You cannot delete this file", 403);
         }
 
         // Delete assessment from database
-        await filesDB.remove(String(assessment._id));
+        await filesDB.remove(fileId);
 
         // Also delete file from cloudnary
-        cloudinaryService.deleteResource(
-            assessment.publicId,
-            assessment.fileExtension,
-        );
+        cloudinaryService.deleteResource(file.publicId, file.fileExtension);
     };
 
     /*
