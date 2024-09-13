@@ -7,11 +7,15 @@ cloudinary.config({
     api_secret: config.cloudinaryApiSecret,
 });
 
-export async function deleteResource(publicId: string, fileExtension: string) {
-    cloudinary.api
-        .delete_resources([publicId], {
-            type: "upload",
-            resource_type: fileExtension === "docx" ? "raw" : "image",
-        })
-        .then(console.log);
+export default function CloudinaryService() {
+    const deleteResource = (publicId: string, fileExtension: string) => {
+        cloudinary.api
+            .delete_resources([publicId], {
+                type: "upload",
+                resource_type: fileExtension === "docx" ? "raw" : "image",
+            })
+            .then(console.log);
+    };
+
+    return { deleteResource };
 }

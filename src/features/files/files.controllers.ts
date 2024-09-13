@@ -2,8 +2,13 @@ import FilesModel from "./files.model";
 import { RequestHandler } from "express";
 import { PipelineStage } from "mongoose";
 import FileServices from "./files.services";
+import FilesDB from "./files.data";
+import CloudinaryService from "../../utils/cloudinaryService";
 
-const fileServices = FileServices();
+const filesDB = FilesDB();
+const cloudinaryServices = CloudinaryService();
+
+const fileServices = FileServices(filesDB, cloudinaryServices);
 
 const getAllFiles: RequestHandler = async (req, res, next) => {
     try {
@@ -86,10 +91,10 @@ const getAllFiles: RequestHandler = async (req, res, next) => {
 
 const getOneFile: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = fileServices.listOne((req as any).assessment);
+        const file = await fileServices.listOne((req as any).assessment);
         return res.status(200).json({
             ok: true,
-            data: assessment,
+            data: file,
         });
     } catch (err) {
         return next(err);
@@ -98,9 +103,8 @@ const getOneFile: RequestHandler = async (req, res, next) => {
 
 const createFile: RequestHandler = async (req, res, next) => {
     try {
-        const data = req.body;
-        const userId = (req as any).user._id;
-        await fileServices.create(data, userId);
+        const data = { ...req.body, author: (req as any).user._id };
+        await fileServices.create(data);
 
         return res.status(201).json({
             ok: true,
@@ -113,11 +117,11 @@ const createFile: RequestHandler = async (req, res, next) => {
 
 const editFile: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = (req as any).assessment;
+        const fileId = req.params.id;
         const userId = (req as any).user._id;
         const changes = req.body;
 
-        const updated = await fileServices.edit(assessment, userId, changes);
+        const updated = await fileServices.edit(fileId, userId, changes);
 
         return res.status(200).json({
             ok: true,
@@ -130,45 +134,43 @@ const editFile: RequestHandler = async (req, res, next) => {
 
 const deleteFile: RequestHandler = async (req, res, next) => {
     try {
-        const assessment = (req as any).assessment;
+        const fileId = req.params.id;
         const userId = (req.user as any)._id;
-        await fileServices.remove(assessment, userId);
+        await fileServices.remove(fileId, userId);
         return res.status(204).end();
     } catch (err) {
         return next(err);
     }
 };
 
-const getMyFiles: RequestHandler = async (req, res, next) => {
-    try {
-        const { type } = req.params;
-        const subject = req.query.subject as string | undefined;
-        const files = await fileServices.listMyFiles(type, subject);
-        return res.status(200).json({
-            ok: true,
-            data: files,
-        });
-    } catch (error) {
-        return next(error);
-    }
-};
-
-const getStudentFiles: RequestHandler = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const files = await fileServices.listStudentFiles(id);
-        return res.status(200).json({
-            ok: true,
-            data: files,
-        });
-    } catch (error) {
-        return next(error);
-    }
-};
+// const getMyFiles: RequestHandler = async (req, res, next) => {
+//     try {
+//         const { type } = req.params;
+//         const subject = req.query.subject as string | undefined;
+//         const files = await fileServices.listMyFiles(type, subject);
+//         return res.status(200).json({
+//             ok: true,
+//             data: files,
+//         });
+//     } catch (error) {
+//         return next(error);
+//     }
+// };
+//
+// const getStudentFiles: RequestHandler = async (req, res, next) => {
+//     try {
+//         const { id } = req.params;
+//         const files = await fileServices.listStudentFiles(id);
+//         return res.status(200).json({
+//             ok: true,
+//             data: files,
+//         });
+//     } catch (error) {
+//         return next(error);
+//     }
+// };
 
 const fileControllers = {
-    getStudentFiles,
-    getMyFiles,
     deleteFile,
     editFile,
     createFile,

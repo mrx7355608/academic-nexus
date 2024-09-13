@@ -4,7 +4,7 @@ import fileValidators from "./files.validators";
 import validator from "validator";
 
 interface ICloudinaryService {
-    deleteResource: (publicId: string, fileExtension: string) => Promise<void>;
+    deleteResource: (publicId: string, fileExtension: string) => void;
 }
 
 export default function FileServices(
