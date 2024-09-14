@@ -9,7 +9,8 @@
         "test-app": "jest",
         "test-unit": "jest ./tests/unit/*.spec.ts",
         "test-e2e": "jest ./tests/e2e/*.e2e.spec.ts",
-        "test-watch": "jest --watch"
+        "test-watch": "jest --watch",
+        "populate-db": "ts-node-dev src/utils/populateDB.ts"
     },
     "dependencies": {
         "bcryptjs": "^2.4.3",
