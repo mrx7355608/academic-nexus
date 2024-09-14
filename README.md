@@ -10,12 +10,14 @@ _**Academic Nexus**_ is a document-sharing platform built with Express.js and Re
 
 1. Google Authentication
 2. Content Categorizaton based on subjects
-3. Report System
-4. Push notifications to receive content updates
-5. Voting system to promote content quality
-6. Bookmarks (upcoming)
-7. Search suggestions (upcoming)
-8. Push Notifications (upcoming)
+3. Voting system to promote content quality
+
+### Upcoming Features
+
+1. Report System
+2. Push notifications to receive content updates
+3. Bookmarks
+4. Search suggestions
 
 ### Technologies
 
