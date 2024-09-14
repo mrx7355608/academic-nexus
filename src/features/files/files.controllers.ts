@@ -21,6 +21,7 @@ const getAllFiles: RequestHandler = async (req, res, next) => {
         // Filtering
         if (req.query.subjects) {
             const subjects = (req.query.subjects as string).split(",");
+            console.log({ subjects });
             aggregateStages.push({ $match: { subject: { $in: subjects } } });
         }
 

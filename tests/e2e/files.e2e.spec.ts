@@ -93,10 +93,15 @@ describe("File E2E tests", () => {
             }
         });
 
-        it.todo("should return filtered data");
-        it.todo(
-            "should return data with default values when no filter is provided",
-        );
+        it("should filter data", async () => {
+            const response = await agent.get(
+                `/api/files?subjects=${encodeURIComponent("Programming Fundamentals,Data Structures & Algorithms")}`,
+            );
+            const subjects = response.body.data.map(
+                (file: any) => file.subject,
+            );
+            expect(subjects).toContain("Data Structures & Algorithms");
+        });
     });
 
     describe("GET /api/files/:id", () => {
