@@ -13,13 +13,13 @@ export function globalErrorHandler(
     res: Response,
     _next: NextFunction,
 ) {
-    const message = err.message || "An un-expected error occurred";
+    const message = err.message;
     const status = err.status || 500;
 
     if (process.env.NODE_ENV === "production") {
         return res.status(status).json({
             ok: false,
-            error: message,
+            error: status >= 500 ? "Something went wrong" : message,
         });
     }
 
