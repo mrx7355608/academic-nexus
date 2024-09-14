@@ -13,6 +13,8 @@ export interface IFile {
 export interface IFileDocument extends Document, IFile {
     createdAt: Date;
     updatedAt: Date;
+    upvotes: mongoose.Types.ObjectId[];
+    downvotes: mongoose.Types.ObjectId[];
 }
 
 export interface IFileDB {

@@ -20,22 +20,20 @@ router.patch("/:id", defaultLimiter, isAuth, fileControllers.editFile);
 // DELETE ASSESSMENT
 router.delete("/:id", defaultLimiter, isAuth, fileControllers.deleteFile);
 
-export default router;
-
 // UPVOTE ASSESSMENT
-// router.post(
-//     "/:id/upvote",
-//     defaultLimiter,
-//     isAuth,
-//     validateAssessment,
-//     fileControllers.upvoteAssessment,
-// );
-//
-// // DOWNVOTE ASSESSMENTS
-// router.post(
-//     "/:id/downvote",
-//     defaultLimiter,
-//     isAuth,
-//     validateAssessment,
-//     fileControllers.downvoteAssessment,
-// );
+router.patch(
+    "/:id/upvote",
+    defaultLimiter,
+    isAuth,
+    fileControllers.upvoteFiles,
+);
+
+// DOWN-VOTE ASSESSMENT
+router.patch(
+    "/:id/downvote",
+    defaultLimiter,
+    isAuth,
+    fileControllers.downvoteFiles,
+);
+
+export default router;

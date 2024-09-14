@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import ApiError from "../../utils/ApiError";
 import { IFile, IFileDB } from "./files.type";
 import fileValidators from "./files.validators";
@@ -11,14 +12,6 @@ export default function FileServices(
     filesDB: IFileDB,
     cloudinaryService: ICloudinaryService,
 ) {
-    // LIST ALL FILES
-    const listAll = async (page: number) => {
-        const LIMIT = 15;
-        const skipVal = (page - 1) * LIMIT;
-        const files = await filesDB.findAll(skipVal);
-        return files;
-    };
-
     // LIST ONE FILE BY ID
     const listOne = async (fileId: string) => {
         const file = await validateFile(fileId);
@@ -70,6 +63,46 @@ export default function FileServices(
         }
     };
 
+    // UPVOTE FILE
+    const upvote = async (fileId: string, userId: string) => {
+        // 1. Validate file id and return file
+        const file = await validateFile(fileId);
+
+        // 2. Check if user has already upvoted this file
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        if (file.upvotes.includes(userObjectId)) {
+            throw new ApiError("You have already upvoted this file", 400);
+        }
+
+        // 3. Update votes
+        const updatedFile = await filesDB.update(fileId, {
+            $push: { upvotes: userId },
+            $pull: { downvotes: userId },
+        } as any);
+
+        return updatedFile;
+    };
+
+    // DOWN-VOTE FILE
+    const downvote = async (fileId: string, userId: string) => {
+        // 1. Validate file id and return file
+        const file = await validateFile(fileId);
+
+        // 2. Check if user has already downvoted this file
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        if (file.downvotes.includes(userObjectId)) {
+            throw new ApiError("You have already downvoted this file", 400);
+        }
+
+        // 3. Update votes
+        const updatedFile = await filesDB.update(fileId, {
+            $pull: { upvotes: userId },
+            $push: { downvotes: userId },
+        } as any);
+
+        return updatedFile;
+    };
+
     /*
      * UTILITY FUNCTIONS
      */
@@ -87,11 +120,12 @@ export default function FileServices(
     };
 
     return {
-        listAll,
         listOne,
         create,
         edit,
         remove,
         validateFile,
+        upvote,
+        downvote,
     };
 }

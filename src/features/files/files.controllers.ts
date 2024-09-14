@@ -131,6 +131,42 @@ const deleteFile: RequestHandler = async (req, res, next) => {
     }
 };
 
+const upvoteFiles: RequestHandler = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const userId = String((req as any).user._id);
+        const updatedFile = await fileServices.upvote(id, userId);
+
+        return res.status(200).json({
+            ok: true,
+            data: {
+                upvotes: updatedFile.upvotes,
+                downvotes: updatedFile.downvotes,
+            },
+        });
+    } catch (err) {
+        return next(err);
+    }
+};
+
+const downvoteFiles: RequestHandler = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const userId = String((req as any).user._id);
+        const updatedFile = await fileServices.downvote(id, userId);
+
+        return res.status(200).json({
+            ok: true,
+            data: {
+                upvotes: updatedFile.upvotes,
+                downvotes: updatedFile.downvotes,
+            },
+        });
+    } catch (err) {
+        return next(err);
+    }
+};
+
 // const getMyFiles: RequestHandler = async (req, res, next) => {
 //     try {
 //         const { type } = req.params;
@@ -164,56 +200,8 @@ const fileControllers = {
     createFile,
     getAllFiles,
     getOneFile,
+    upvoteFiles,
+    downvoteFiles,
 };
 
 export default fileControllers;
-
-// const upvoteFiles: RequestHandler = async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//
-//         const updated = await FilesModel.findByIdAndUpdate(
-//             id,
-//             {
-//                 $push: { upvotes: (req.user as any)._id },
-//                 $pull: { downvotes: (req.user as any)._id },
-//             },
-//             { new: true },
-//         );
-//
-//         return res.status(200).json({
-//             ok: true,
-//             data: {
-//                 upvotes: updated!.upvotes,
-//                 downvotes: updated!.downvotes,
-//             },
-//         });
-//     } catch (err) {
-//         return next(err);
-//     }
-// };
-
-// const downvoteFiles: RequestHandler = async (req, res, next) => {
-//     try {
-//         const { id } = req.params;
-//
-//         const updated = await FilesModel.findByIdAndUpdate(
-//             id,
-//             {
-//                 $pull: { upvotes: (req.user as any)._id },
-//                 $push: { downvotes: (req.user as any)._id },
-//             },
-//             { new: true },
-//         );
-//
-//         return res.status(200).json({
-//             ok: true,
-//             data: {
-//                 upvotes: updated!.upvotes,
-//                 downvotes: updated!.downvotes,
-//             },
-//         });
-//     } catch (err) {
-//         return next(err);
-//     }
-// };

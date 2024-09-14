@@ -32,6 +32,14 @@ const fileSchema = new mongoose.Schema<IFileDocument>(
             ref: "Student",
             required: true,
         },
+        upvotes: {
+            type: [{ type: mongoose.Types.ObjectId, ref: "Student" }],
+            default: [],
+        },
+        downvotes: {
+            type: [{ type: mongoose.Types.ObjectId, ref: "Student" }],
+            default: [],
+        },
     },
     { timestamps: true },
 );

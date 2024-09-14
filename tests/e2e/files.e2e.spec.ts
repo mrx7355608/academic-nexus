@@ -177,6 +177,7 @@ describe("File E2E tests", () => {
 
     describe("PATCH /api/files/:id", () => {
         it("should edit file", async () => {
+            const fileId = "66e53d77c4403a4647b536e0";
             const response = await agent
                 .patch(`/api/files/${fileId}`)
                 .set("Cookie", cookie)
@@ -194,6 +195,51 @@ describe("File E2E tests", () => {
                 .delete(`/api/files/${fileId}`)
                 .set("Cookie", cookie)
                 .expect(204);
+        });
+    });
+
+    describe("Voting tests", () => {
+        it("should not allow not-authenticated users to vote", async () => {
+            const fileId = "66e53d77c4403a4647b536e0";
+            const response = await agent
+                .patch(`/api/files/${fileId}/upvote`)
+                .expect(401);
+            expect(response.body.ok).toBe(false);
+            expect(response.body.error).toBe("Not authenticated");
+        });
+
+        it("should allow users to vote", async () => {
+            const fileId = "66e53d77c4403a4647b536e0";
+            const response = await agent
+                .patch(`/api/files/${fileId}/upvote`)
+                .set("Cookie", cookie)
+                .expect(200);
+            expect(response.body.ok).toBe(true);
+            expect(response.body.data.upvotes.length).toBe(1);
+            expect(response.body.data.downvotes.length).toBe(0);
+        });
+
+        it("should not allow same user to vote again", async () => {
+            const fileId = "66e53d77c4403a4647b536e0";
+            const response = await agent
+                .patch(`/api/files/${fileId}/upvote`)
+                .set("Cookie", cookie)
+                .expect(400);
+            expect(response.body.ok).toBe(false);
+            expect(response.body.error).toBe(
+                "You have already upvoted this file",
+            );
+        });
+
+        it("should allow users to downvote", async () => {
+            const fileId = "66e53d77c4403a4647b536e0";
+            const response = await agent
+                .patch(`/api/files/${fileId}/downvote`)
+                .set("Cookie", cookie)
+                .expect(200);
+            expect(response.body.ok).toBe(true);
+            expect(response.body.data.upvotes.length).toBe(0);
+            expect(response.body.data.downvotes.length).toBe(1);
         });
     });
 });
