@@ -1,5 +1,4 @@
 import { Router } from "express";
-import validateAssessment from "../../middlewares/validateAssessment";
 import isAuth from "../../middlewares/isAuth";
 import fileControllers from "./files.controllers";
 import { defaultLimiter } from "../../utils/rateLimiters";
@@ -10,12 +9,7 @@ const router = Router();
 router.get("/", defaultLimiter, fileControllers.getAllFiles);
 
 // GET ONE ASSESSMENT BY ID
-router.get(
-    "/:id",
-    defaultLimiter,
-    validateAssessment,
-    fileControllers.getOneFile,
-);
+router.get("/:id", defaultLimiter, fileControllers.getOneFile);
 
 // CREATE NEW ASSESSMENTS
 router.post("/", defaultLimiter, isAuth, fileControllers.createFile);

@@ -14,6 +14,8 @@ const fileServices = FileServices(filesDB, cloudinaryServices);
 const getAllFiles: RequestHandler = async (req, res, next) => {
     try {
         const aggregateStages: PipelineStage[] = [];
+
+        // Only select public files
         aggregateStages.push({ $match: { isPublic: true } });
 
         // Filtering
@@ -22,32 +24,10 @@ const getAllFiles: RequestHandler = async (req, res, next) => {
             aggregateStages.push({ $match: { subject: { $in: subjects } } });
         }
 
-        if (req.query.types) {
-            const types = (req.query.subjects as string).split(",");
-            aggregateStages.push({ $match: { type: { $in: types } } });
-        }
-
-        // Sorting - BY LATEST UPLOAD
+        // Sorting
         if (req.query.sort === "oldest") {
             aggregateStages.push({ $sort: { createdAt: 1 } });
-        }
-
-        // Sorting - BY HIGHEST VOTES
-        else if (req.query.sort === "highest votes") {
-            aggregateStages.push({
-                $addFields: {
-                    averageVotes: {
-                        $subtract: [
-                            { $size: "$upvotes" },
-                            { $size: "$downvotes" },
-                        ],
-                    },
-                },
-            });
-            aggregateStages.push({ $sort: { averageVotes: -1 } });
-        }
-        // Sorting - DEFAULT
-        else {
+        } else {
             aggregateStages.push({ $sort: { createdAt: -1 } });
         }
 
@@ -63,27 +43,27 @@ const getAllFiles: RequestHandler = async (req, res, next) => {
             });
         }
 
-        // Deselect fileURL field from all the documents
-        aggregateStages.push({
-            $project: {
-                fileURL: 0,
-                password: 0,
-                publicId: 0,
-                updatedAt: 0,
-                __v: 0,
-            },
-        });
+        // Paginating
+        const LIMIT = 10;
+        let page = 1;
+        if (req.query.page) {
+            page = Number.parseInt(req.query.page as string);
+        }
+        const skip = (page - 1) * LIMIT;
+        aggregateStages.push({ $skip: skip });
+        aggregateStages.push({ $limit: LIMIT });
 
         // Fetch data from database
-        const assessments = await FilesModel.aggregate(aggregateStages);
-        await FilesModel.populate(assessments, {
+        const files = await FilesModel.aggregate(aggregateStages);
+        await FilesModel.populate(files, {
             path: "author",
             select: "fullname",
         });
+        const filesDTO = files.map((file) => new ResponseFileDTO(file));
 
         return res.status(200).json({
             ok: true,
-            data: assessments,
+            data: filesDTO,
         });
     } catch (err) {
         return next(err);
@@ -92,10 +72,11 @@ const getAllFiles: RequestHandler = async (req, res, next) => {
 
 const getOneFile: RequestHandler = async (req, res, next) => {
     try {
-        const file = await fileServices.listOne((req as any).assessment);
+        const fileId = req.params.id;
+        const file = await fileServices.listOne(fileId);
         return res.status(200).json({
             ok: true,
-            data: file,
+            data: new ResponseFileDTO(file),
         });
     } catch (err) {
         return next(err);
